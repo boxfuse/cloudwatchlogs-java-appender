@@ -1,0 +1,9 @@
+*.ipr
+*.iws
+*.iml
+target
+build
+.vagrant
+/.idea/
+.photon
+*.photon

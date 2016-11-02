@@ -1,0 +1,67 @@
+package com.boxfuse.cloudwatchlogs.internal;
+
+public class CloudwatchLogsLogEvent {
+    private final String level;
+    private final String logger;
+    private final String event;
+    private final String message;
+    private final long timestamp;
+    private final String thread;
+    private final String account;
+    private final String user;
+    private final String session;
+    private final String request;
+
+    public CloudwatchLogsLogEvent(String level, String logger, String event, String message, long timestamp, String thread, String account, String user, String session, String request) {
+        this.level = level;
+        this.logger = logger;
+        this.event = event;
+        this.message = message;
+        this.timestamp = timestamp;
+        this.thread = thread;
+        this.account = account;
+        this.user = user;
+        this.session = session;
+        this.request = request;
+    }
+
+    public String getLevel() {
+        return level;
+    }
+
+    public String getLogger() {
+        return logger;
+    }
+
+    public String getEvent() {
+        return event;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public long getTimestamp() {
+        return timestamp;
+    }
+
+    public String getThread() {
+        return thread;
+    }
+
+    public String getAccount() {
+        return account;
+    }
+
+    public String getUser() {
+        return user;
+    }
+
+    public String getSession() {
+        return session;
+    }
+
+    public String getRequest() {
+        return request;
+    }
+}
