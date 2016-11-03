@@ -70,7 +70,6 @@ public class CloudwatchLogsLogEventPutter implements Runnable {
                 Map<String, Object> eventMap = new TreeMap<>();
                 eventMap.put("instance", config.getInstance());
                 eventMap.put("image", config.getImage());
-                eventMap.put("timestamp", event.getTimestamp());
                 eventMap.put("level", event.getLevel());
                 eventMap.put("event", event.getEvent());
                 eventMap.put("message", event.getMessage());
