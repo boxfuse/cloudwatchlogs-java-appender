@@ -28,6 +28,7 @@ public class CloudwatchLogsLogEventPutter implements Runnable {
     private final ConcurrentLinkedQueue<CloudwatchLogsLogEvent> eventQueue;
     private final AWSLogs logsClient;
     private final ObjectMapper objectMapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
+    private final boolean enabled;
     private boolean running;
     private String app;
     private String logGroupName;
@@ -35,14 +36,16 @@ public class CloudwatchLogsLogEventPutter implements Runnable {
     public CloudwatchLogsLogEventPutter(CloudwatchLogsConfig config, ConcurrentLinkedQueue<CloudwatchLogsLogEvent> eventQueue) {
         this.config = config;
         logGroupName = "boxfuse/" + config.getEnv();
-        app = config.getImage().substring(0, config.getImage().indexOf(":"));
+        String image = config.getImage();
+        app = image.substring(0, image.indexOf(":"));
         this.eventQueue = eventQueue;
         logsClient = new AWSLogsClient();
 
+        String awsRegion = System.getenv("AWS_REGION");
+        enabled = awsRegion != null || config.getEndpoint() != null;
         if (config.getEndpoint() != null) {
             logsClient.setEndpoint(config.getEndpoint());
         }
-        String awsRegion = System.getenv("AWS_REGION");
         if (awsRegion != null) {
             logsClient.setRegion(Region.getRegion(Regions.fromName(awsRegion)));
         }
@@ -50,6 +53,11 @@ public class CloudwatchLogsLogEventPutter implements Runnable {
 
     @Override
     public void run() {
+        if (!enabled) {
+            System.out.println("WARNING: AWS CloudWatch Logs appender is disabled (Unable to detect the AWS region and no CloudWatch Logs endpoint specified)");
+            return;
+        }
+
         running = true;
         String nextSequenceToken = null;
         List<InputLogEvent> eventBatch = new ArrayList<>();
@@ -74,7 +82,7 @@ public class CloudwatchLogsLogEventPutter implements Runnable {
 
                 String eventJson;
                 try {
-                    eventJson = objectMapper.writeValueAsString(eventMap);
+                    eventJson = toJson(eventMap);
                 } catch (JsonProcessingException e) {
                     System.out.println("Unable to serialize log event: " + eventMap);
                     continue;
@@ -99,6 +107,17 @@ public class CloudwatchLogsLogEventPutter implements Runnable {
                 }
             }
         }
+    }
+
+    /* private -> for testing */ String toJson(Map<String, Object> eventMap) throws JsonProcessingException {
+        // Compensate for https://github.com/FasterXML/jackson-databind/issues/1442
+        Map<String, Object> nonNullMap = new TreeMap<>();
+        for (Map.Entry<String, Object> entry : eventMap.entrySet()) {
+            if (entry.getValue() != null) {
+                nonNullMap.put(entry.getKey(), entry.getValue());
+            }
+        }
+        return objectMapper.writeValueAsString(nonNullMap);
     }
 
     public void terminate() {

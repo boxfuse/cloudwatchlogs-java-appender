@@ -17,6 +17,12 @@ public class CloudwatchLogsConfig {
     private String instance = System.getenv("BOXFUSE_INSTANCE_ID");
 
     public CloudwatchLogsConfig() {
+        if (env == null) {
+            env = "##unknown##";
+        }
+        if (image == null) {
+            image = "##unknown##:##unknown##";
+        }
         if (instance == null) {
             instance = getHostName();
         }
@@ -47,6 +53,9 @@ public class CloudwatchLogsConfig {
      * @param env The current Boxfuse environment.
      */
     public void setEnv(String env) {
+        if (env == null) {
+            throw new IllegalArgumentException("env may not be null");
+        }
         this.env = env;
     }
 
@@ -61,6 +70,9 @@ public class CloudwatchLogsConfig {
      * @param image The current Boxfuse image.
      */
     public void setImage(String image) {
+        if (image == null) {
+            throw new IllegalArgumentException("image may not be null");
+        }
         this.image = image;
     }
 
@@ -75,6 +87,9 @@ public class CloudwatchLogsConfig {
      * @param instance The id of the current instance.
      */
     public void setInstance(String instance) {
+        if (instance == null) {
+            throw new IllegalArgumentException("instance may not be null");
+        }
         this.instance = instance;
     }
 
