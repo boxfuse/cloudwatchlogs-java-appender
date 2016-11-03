@@ -72,7 +72,7 @@ public class CloudwatchLogsLogEventPutter implements Runnable {
                 eventMap.put("session", event.getSession());
                 eventMap.put("request", event.getRequest());
 
-                String eventJson = null;
+                String eventJson;
                 try {
                     eventJson = objectMapper.writeValueAsString(eventMap);
                 } catch (JsonProcessingException e) {

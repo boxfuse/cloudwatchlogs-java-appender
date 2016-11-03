@@ -1,4 +1,4 @@
-package com.boxfuse.cloudwatchlogs.logbcak;
+package com.boxfuse.cloudwatchlogs.logback;
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.classic.spi.IThrowableProxy;
