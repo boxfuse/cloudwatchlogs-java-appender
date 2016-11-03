@@ -8,11 +8,12 @@ public class CloudwatchLogsLogEvent {
     private final long timestamp;
     private final String thread;
     private final String account;
+    private final String action;
     private final String user;
     private final String session;
     private final String request;
 
-    public CloudwatchLogsLogEvent(String level, String logger, String event, String message, long timestamp, String thread, String account, String user, String session, String request) {
+    public CloudwatchLogsLogEvent(String level, String logger, String event, String message, long timestamp, String thread, String account, String action, String user, String session, String request) {
         this.level = level;
         this.logger = logger;
         this.event = event;
@@ -20,6 +21,7 @@ public class CloudwatchLogsLogEvent {
         this.timestamp = timestamp;
         this.thread = thread;
         this.account = account;
+        this.action = action;
         this.user = user;
         this.session = session;
         this.request = request;
@@ -51,6 +53,10 @@ public class CloudwatchLogsLogEvent {
 
     public String getAccount() {
         return account;
+    }
+
+    public String getAction() {
+        return action;
     }
 
     public String getUser() {

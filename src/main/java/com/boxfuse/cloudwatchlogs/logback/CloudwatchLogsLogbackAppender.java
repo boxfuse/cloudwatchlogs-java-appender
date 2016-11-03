@@ -55,6 +55,7 @@ public class CloudwatchLogsLogbackAppender extends AppenderBase<ILoggingEvent> {
         }
 
         String account = event.getMDCPropertyMap().get(CloudwatchLogsMDCPropertyNames.ACCOUNT);
+        String action = event.getMDCPropertyMap().get(CloudwatchLogsMDCPropertyNames.ACTION);
         String user = event.getMDCPropertyMap().get(CloudwatchLogsMDCPropertyNames.USER);
         String session = event.getMDCPropertyMap().get(CloudwatchLogsMDCPropertyNames.SESSION);
         String request = event.getMDCPropertyMap().get(CloudwatchLogsMDCPropertyNames.REQUEST);
@@ -62,7 +63,7 @@ public class CloudwatchLogsLogbackAppender extends AppenderBase<ILoggingEvent> {
         Marker marker = event.getMarker();
         String eventId = marker == null ? null : marker.getName();
 
-        eventQueue.add(new CloudwatchLogsLogEvent(event.getLevel().levelStr, event.getLoggerName(), eventId, message, event.getTimeStamp(), event.getThreadName(), account, user, session, request));
+        eventQueue.add(new CloudwatchLogsLogEvent(event.getLevel().levelStr, event.getLoggerName(), eventId, message, event.getTimeStamp(), event.getThreadName(), account, action, user, session, request));
     }
 
     private String dump(IThrowableProxy throwableProxy) {

@@ -12,6 +12,11 @@ public class CloudwatchLogsMDCPropertyNames {
     public static final String ACCOUNT = PREFIX + "ACCOUNT";
 
     /**
+     * The current action in the system. (optional, for things like orders, ...)
+     */
+    public static final String ACTION = PREFIX + "ACTION";
+
+    /**
      * The user of the account. (optional, for systems with the concept of teams or multiple users per account)
      */
     public static final String USER = PREFIX + "USER";

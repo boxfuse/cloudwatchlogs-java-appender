@@ -76,6 +76,7 @@ public class CloudwatchLogsLogEventPutter implements Runnable {
                 eventMap.put("logger", event.getLogger());
                 eventMap.put("thread", event.getThread());
                 eventMap.put("account", event.getAccount());
+                eventMap.put("action", event.getAction());
                 eventMap.put("user", event.getUser());
                 eventMap.put("session", event.getSession());
                 eventMap.put("request", event.getRequest());
