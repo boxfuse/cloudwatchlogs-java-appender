@@ -1,2 +1,2 @@
-# cloudwatchlogs-java-appender [![Build Status](https://api.travis-ci.org/boxfuse/cloudwatchlogs-java-appender.svg)](https://travis-ci.org/boxfuse/cloudwatchlogs-java-appender)
+# cloudwatchlogs-java-appender [![Build Status](https://api.travis-ci.org/boxfuse/cloudwatchlogs-java-appender.svg)](https://travis-ci.org/boxfuse/cloudwatchlogs-java-appender) [![GitHub license](https://img.shields.io/badge/license-Apache%20License%202.0-blue.svg?style=flat)](http://www.apache.org/licenses/LICENSE-2.0)
 Java log appender for AWS CloudWatch Logs when running within Boxfuse instances
