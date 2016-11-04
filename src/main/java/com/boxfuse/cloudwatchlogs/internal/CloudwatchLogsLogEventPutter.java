@@ -1,5 +1,6 @@
 package com.boxfuse.cloudwatchlogs.internal;
 
+import com.amazonaws.auth.AnonymousAWSCredentials;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.logs.AWSLogs;
@@ -40,15 +41,17 @@ public class CloudwatchLogsLogEventPutter implements Runnable {
         String image = config.getImage();
         app = image.substring(0, image.indexOf(":"));
         this.eventQueue = eventQueue;
-        logsClient = new AWSLogsClient();
 
         String awsRegion = System.getenv("AWS_REGION");
         enabled = awsRegion != null || config.getEndpoint() != null;
-        if (config.getEndpoint() != null) {
+        if (config.getEndpoint() == null) {
+            logsClient = new AWSLogsClient();
+            if (awsRegion != null) {
+                logsClient.setRegion(Region.getRegion(Regions.fromName(awsRegion)));
+            }
+        } else {
+            logsClient = new AWSLogsClient(new AnonymousAWSCredentials());
             logsClient.setEndpoint(config.getEndpoint());
-        }
-        if (awsRegion != null) {
-            logsClient.setRegion(Region.getRegion(Regions.fromName(awsRegion)));
         }
     }
 
