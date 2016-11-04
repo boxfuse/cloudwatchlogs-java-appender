@@ -5,6 +5,7 @@ import com.amazonaws.regions.Regions;
 import com.amazonaws.services.logs.AWSLogs;
 import com.amazonaws.services.logs.AWSLogsClient;
 import com.amazonaws.services.logs.model.InputLogEvent;
+import com.amazonaws.services.logs.model.InvalidSequenceTokenException;
 import com.amazonaws.services.logs.model.PutLogEventsRequest;
 import com.amazonaws.services.logs.model.PutLogEventsResult;
 import com.boxfuse.cloudwatchlogs.CloudwatchLogsConfig;
@@ -92,7 +93,13 @@ public class CloudwatchLogsLogEventPutter implements Runnable {
                 int batchCount = eventBatch.size();
                 if (batchCount >= MAX_BATCH_COUNT || batchSize >= MAX_BATCH_SIZE || lastFlush <= (System.nanoTime() - MAX_FLUSH_DELAY)) {
                     PutLogEventsRequest request = new PutLogEventsRequest(logGroupName, app, eventBatch).withSequenceToken(nextSequenceToken);
-                    PutLogEventsResult result = logsClient.putLogEvents(request);
+                    PutLogEventsResult result;
+                    try {
+                        result = logsClient.putLogEvents(request);
+                    } catch (InvalidSequenceTokenException e) {
+                        request = new PutLogEventsRequest(logGroupName, app, eventBatch).withSequenceToken(e.getExpectedSequenceToken());
+                        result = logsClient.putLogEvents(request);
+                    }
                     nextSequenceToken = result.getNextSequenceToken();
                     eventBatch = new ArrayList<>();
                     batchSize = 0;
