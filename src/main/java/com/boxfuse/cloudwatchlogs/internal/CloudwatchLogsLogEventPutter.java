@@ -9,6 +9,7 @@ import com.amazonaws.services.logs.model.InputLogEvent;
 import com.amazonaws.services.logs.model.InvalidSequenceTokenException;
 import com.amazonaws.services.logs.model.PutLogEventsRequest;
 import com.amazonaws.services.logs.model.PutLogEventsResult;
+import com.amazonaws.services.logs.model.ServiceUnavailableException;
 import com.boxfuse.cloudwatchlogs.CloudwatchLogsConfig;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -95,15 +96,26 @@ public class CloudwatchLogsLogEventPutter implements Runnable {
                 batchSize += eventJson.getBytes(StandardCharsets.UTF_8).length;
                 int batchCount = eventBatch.size();
                 if (batchCount >= MAX_BATCH_COUNT || batchSize >= MAX_BATCH_SIZE || lastFlush <= (System.nanoTime() - MAX_FLUSH_DELAY)) {
-                    PutLogEventsRequest request = new PutLogEventsRequest(logGroupName, app, eventBatch).withSequenceToken(nextSequenceToken);
-                    PutLogEventsResult result;
-                    try {
-                        result = logsClient.putLogEvents(request);
-                    } catch (InvalidSequenceTokenException e) {
-                        request = new PutLogEventsRequest(logGroupName, app, eventBatch).withSequenceToken(e.getExpectedSequenceToken());
-                        result = logsClient.putLogEvents(request);
-                    }
-                    nextSequenceToken = result.getNextSequenceToken();
+                    boolean retry;
+                    do {
+                        retry = false;
+                        PutLogEventsRequest request =
+                                new PutLogEventsRequest(logGroupName, app, eventBatch).withSequenceToken(nextSequenceToken);
+                        try {
+                            PutLogEventsResult result = logsClient.putLogEvents(request);
+                            nextSequenceToken = result.getNextSequenceToken();
+                        } catch (InvalidSequenceTokenException e) {
+                            nextSequenceToken = e.getExpectedSequenceToken();
+                            retry = true;
+                        } catch (ServiceUnavailableException e) {
+                            try {
+                                Thread.sleep(1000);
+                            } catch (InterruptedException e1) {
+                                // Ignore
+                            }
+                            retry = true;
+                        }
+                    } while (retry);
                     eventBatch = new ArrayList<>();
                     batchSize = 0;
                     lastFlush = System.nanoTime();
