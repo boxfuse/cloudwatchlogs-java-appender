@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.BlockingQueue;
 
 public class CloudwatchLogsLogEventPutter implements Runnable {
     private static final int MAX_FLUSH_DELAY = 500 * 1000 * 1000;
@@ -28,7 +28,7 @@ public class CloudwatchLogsLogEventPutter implements Runnable {
     private static final int MAX_BATCH_SIZE = 1 << 20;
 
     private final CloudwatchLogsConfig config;
-    private final ConcurrentLinkedQueue<CloudwatchLogsLogEvent> eventQueue;
+    private final BlockingQueue<CloudwatchLogsLogEvent> eventQueue;
     private final AWSLogs logsClient;
     private final ObjectMapper objectMapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
     private final boolean enabled;
@@ -36,7 +36,7 @@ public class CloudwatchLogsLogEventPutter implements Runnable {
     private String app;
     private String logGroupName;
 
-    public CloudwatchLogsLogEventPutter(CloudwatchLogsConfig config, ConcurrentLinkedQueue<CloudwatchLogsLogEvent> eventQueue) {
+    public CloudwatchLogsLogEventPutter(CloudwatchLogsConfig config, BlockingQueue<CloudwatchLogsLogEvent> eventQueue) {
         this.config = config;
         logGroupName = "boxfuse/" + config.getEnv();
         String image = config.getImage();

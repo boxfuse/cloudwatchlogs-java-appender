@@ -11,6 +11,8 @@ import java.util.Enumeration;
  * General configuration for the CloudWatch appender.
  */
 public class CloudwatchLogsConfig {
+    private int maxEventQueueSize = 1000000;
+
     private String endpoint = System.getenv("BOXFUSE_CLOUDWATCHLOGS_ENDPOINT");
     private String env = System.getenv("BOXFUSE_ENV");
     private String image = System.getenv("BOXFUSE_IMAGE_COORDINATES");
@@ -26,6 +28,27 @@ public class CloudwatchLogsConfig {
         if (instance == null) {
             instance = getHostName();
         }
+    }
+
+    /**
+     * @return The maximum size of the async log event queue. Default: 1000000.
+     * Increase to avoid dropping log events at very high throughput.
+     * Decrease to reduce maximum memory usage at the risk if the occasional log event drop when it gets full.
+     */
+    public int getMaxEventQueueSize() {
+        return maxEventQueueSize;
+    }
+
+    /**
+     * @param maxEventQueueSize The maximum size of the async log event queue. Default: 1000000.
+     * Increase to avoid dropping log events at very high throughput.
+     * Decrease to reduce maximum memory usage at the risk if the occasional log event drop when it gets full.
+     */
+    public void setMaxEventQueueSize(int maxEventQueueSize) {
+        if (maxEventQueueSize < 1) {
+            throw new IllegalArgumentException("maxEventQueueSize may not be smaller than 1");
+        }
+        this.maxEventQueueSize = maxEventQueueSize;
     }
 
     /**
