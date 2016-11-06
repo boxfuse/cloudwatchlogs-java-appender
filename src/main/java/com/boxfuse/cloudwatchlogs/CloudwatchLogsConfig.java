@@ -41,8 +41,8 @@ public class CloudwatchLogsConfig {
 
     /**
      * @param maxEventQueueSize The maximum size of the async log event queue. Default: 1000000.
-     * Increase to avoid dropping log events at very high throughput.
-     * Decrease to reduce maximum memory usage at the risk if the occasional log event drop when it gets full.
+     *                          Increase to avoid dropping log events at very high throughput.
+     *                          Decrease to reduce maximum memory usage at the risk if the occasional log event drop when it gets full.
      */
     public void setMaxEventQueueSize(int maxEventQueueSize) {
         if (maxEventQueueSize < 1) {
