@@ -9,6 +9,10 @@ import org.apache.logging.log4j.core.Filter;
 import org.apache.logging.log4j.core.Layout;
 import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.core.appender.AbstractAppender;
+import org.apache.logging.log4j.core.config.plugins.Plugin;
+import org.apache.logging.log4j.core.config.plugins.PluginAttribute;
+import org.apache.logging.log4j.core.config.plugins.PluginElement;
+import org.apache.logging.log4j.core.config.plugins.PluginFactory;
 
 import java.io.Serializable;
 import java.util.concurrent.BlockingQueue;
@@ -17,6 +21,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 /**
  * Log4J2 appender for Boxfuse's AWS CloudWatch Logs integration.
  */
+@Plugin(name="Boxfuse-CloudwatchLogs", category="Core", elementType="appender", printObject=true)
 public class CloudwatchLogsLog4J2Appender extends AbstractAppender {
     private final CloudwatchLogsConfig config = new CloudwatchLogsConfig();
     private BlockingQueue<CloudwatchLogsLogEvent> eventQueue;
@@ -29,6 +34,22 @@ public class CloudwatchLogsLog4J2Appender extends AbstractAppender {
 
     public CloudwatchLogsLog4J2Appender(String name, Filter filter, Layout<? extends Serializable> layout, boolean ignoreExceptions) {
         super(name, filter, layout, ignoreExceptions);
+    }
+
+    // Your custom appender needs to declare a factory method
+    // annotated with `@PluginFactory`. Log4j will parse the configuration
+    // and call this factory method to construct an appender instance with
+    // the configured attributes.
+    @PluginFactory
+    public static CloudwatchLogsLog4J2Appender createAppender(
+            @PluginAttribute("name") String name,
+            @PluginElement("Filter") final Filter filter,
+            @PluginAttribute("maxEventQueueSize") Integer maxEventQueueSize) {
+        CloudwatchLogsLog4J2Appender appender = new CloudwatchLogsLog4J2Appender(name, filter, null, true);
+        if (maxEventQueueSize != null) {
+            appender.getConfig().setMaxEventQueueSize(maxEventQueueSize);
+        }
+        return appender;
     }
 
     /**
