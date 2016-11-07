@@ -22,12 +22,12 @@ Start by adding the Boxfuse Maven repository to your list of repositories in you
 ```
 <repositories>
     <repository>
-        <id>boxfuse-repo</id>
-        <url>https://files.boxfuse.com</url>
-    </repository>
-    <repository>
         <id>central</id>
         <url>http://repo1.maven.org/maven2/</url>
+    </repository>
+    <repository>
+        <id>boxfuse-repo</id>
+        <url>https://files.boxfuse.com</url>
     </repository>
 </repositories>
 ```
