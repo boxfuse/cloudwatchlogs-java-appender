@@ -38,7 +38,7 @@ Then add the dependency:
 <dependency>
     <groupId>com.boxfuse.cloudwatchlogs</groupId>
     <artifactId>cloudwatchlogs-java-appender</artifactId>
-    <version>1.0.0.9</version>
+    <version>1.0.0.13</version>
 </dependency>
 ```
 
@@ -59,7 +59,7 @@ Then add the dependency:
 
 ```
 dependencies {
-    compile 'com.boxfuse.cloudwatchlogs:cloudwatchlogs-java-appender:1.0.0.9'
+    compile 'com.boxfuse.cloudwatchlogs:cloudwatchlogs-java-appender:1.0.0.13'
 }
 ```
 
@@ -119,6 +119,89 @@ events are shipped as JSON documents will all required metadata:
     "thread": "main"
 }
 ```
+
+This has several advantages:
+
+- It cleanly separates presentation and formatting from log event content
+- Log events are now machine searchable
+- All log events from all applications now have exactly the same attributes, which enables searches across application boundaries
+
+### Log streams and log groups
+
+When the appender is run within a Boxfuse instance, it will send the log events to the AWS CloudWatch Logs *log group* for the
+ current Boxfuse [environment](https://boxfuse.com/docs/environments). Within that *log group* the events will be placed
+ in the *log stream* for the current Boxfuse application.
+
+
+### Automatically populated attributes
+
+A number of log event attributes are populated automatically when the appender is run within a Boxfuse instance:
+
+- `image` is the current Boxfuse image
+- `instance` is the current AWS instance id
+
+When logging a message from your code using SLF4J as follows:
+
+```
+Logger log = LoggerFactory.getLogger(MyClass.class);
+...
+log.info("My log message");
+``` 
+ 
+the timestamp of the log event is added to its metadata and the following attributes are also automatically extracted:
+
+- `level` is the log level (`INFO` in this case)
+- `logger` is the logger used (`com.mypkg.MyClass` in this case)
+- `thread` that was logged from (`main` for the main application thread)
+- `message` is the actual log message (`My log message` in this case)
+
+When using an SLF4J marker you can also make it much easier to filter specific event types. The following code:
+
+```
+Logger log = LoggerFactory.getLogger(MyClass.class);
+Marker USER_CREATED = MarkerFactory.getMarker("USER_CREATED");
+String username = "MyUser";
+...
+log.info(USER_CREATED, "Created user {}", username);
+```
+
+now also automatically defines an additional log event attribute:
+
+- `event` which is the exact type of the event, making it easy to search and filter for this (`USER_CREATED` in this case)
+
+### Optional additional attributes
+
+Additionally a number of optional attributes can also be defined via MDC to provide further information of the log event:
+
+- `account` is the current account in the system
+- `action` is the current action in the system (for grouping log events all related to the same domain-specific thing like the current order for example)
+- `user` is the user of the account (for systems with the concept of teams or multiple users per account)
+- `session` is the ID of the current session of the user
+- `request` is the ID of the request
+
+They are populated in the MDC as follows:
+
+```
+MDC.put(CloudwatchLogsMDCPropertyNames.ACCOUNT, "MyCurrentAccount");
+MDC.put(CloudwatchLogsMDCPropertyNames.ACTION, "order-12345");
+MDC.put(CloudwatchLogsMDCPropertyNames.USER, "MyUser");
+MDC.put(CloudwatchLogsMDCPropertyNames.SESSION, "session-9876543210");
+MDC.put(CloudwatchLogsMDCPropertyNames.REQUEST, "req-111222333");
+```
+
+When finishing processing (after sending out a response for example) they should be cleaned up again to prevent mixups:
+
+```
+MDC.remove(CloudwatchLogsMDCPropertyNames.ACCOUNT);
+MDC.remove(CloudwatchLogsMDCPropertyNames.ACTION);
+MDC.remove(CloudwatchLogsMDCPropertyNames.USER);
+MDC.remove(CloudwatchLogsMDCPropertyNames.SESSION);
+MDC.remove(CloudwatchLogsMDCPropertyNames.REQUEST);
+```
+
+In a microservices architecture these attributes should be included in all requests sent between systems, to ensure they
+ can be put in the MDC by each individual service in order to be correlated later. This is very powerful as it allows you to retrieve
+  all the logs pertaining for example to a specific request across all microservices in your environment.
 
 ## Implementation
 
