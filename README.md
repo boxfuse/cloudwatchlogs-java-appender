@@ -88,15 +88,36 @@ Add the appender to your `log4j2.xml` file at the root of your classpath. In a M
 ```
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration packages="com.boxfuse.cloudwatchlogs.log4j2">
-  <Appenders>
-    <Boxfuse-CloudwatchLogs/>
-  </Appenders>
-  <Loggers>
-    <Root level="error">
-      <AppenderRef ref="Boxfuse-CloudwatchLogs"/>
-    </Root>
-  </Loggers>
+    <Appenders>
+        <Boxfuse-CloudwatchLogs/>
+    </Appenders>
+    <Loggers>
+        <Root level="debug">
+            <AppenderRef ref="Boxfuse-CloudwatchLogs"/>
+        </Root>
+    </Loggers>
 </Configuration>
+```
+
+## Standardized Structured Logging
+
+All log events are *structured* and *standardized*. What this means is that instead of shipping log events as strings like this:
+
+```
+2014-03-05 10:57:51.702  INFO 45469 --- [ost-startStop-1] o.s.b.c.embedded.FilterRegistrationBean  : Mapping filter: 'hiddenHttpMethodFilter' to: [/*]
+```
+
+events are shipped as JSON documents will all required metadata:
+
+```
+{
+    "image": "myuser/myapp:123",
+    "instance": "i-607b5ddc",
+    "level": "INFO",
+    "logger": "org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping",
+    "message": "Mapping filter: 'hiddenHttpMethodFilter' to: [/*]",
+    "thread": "main"
+}
 ```
 
 ## Implementation
