@@ -21,8 +21,9 @@ import java.util.concurrent.LinkedBlockingQueue;
 /**
  * Log4J2 appender for Boxfuse's AWS CloudWatch Logs integration.
  */
-@Plugin(name="Boxfuse-CloudwatchLogs", category="Core", elementType="appender", printObject=true)
+@Plugin(name = CloudwatchLogsLog4J2Appender.APPENDER_NAME, category = "Core", elementType = "appender", printObject = true)
 public class CloudwatchLogsLog4J2Appender extends AbstractAppender {
+    static final String APPENDER_NAME = "Boxfuse-CloudwatchLogs";
     private final CloudwatchLogsConfig config = new CloudwatchLogsConfig();
     private BlockingQueue<CloudwatchLogsLogEvent> eventQueue;
     private CloudwatchLogsLogEventPutter putter;
@@ -42,13 +43,11 @@ public class CloudwatchLogsLog4J2Appender extends AbstractAppender {
     // the configured attributes.
     @PluginFactory
     public static CloudwatchLogsLog4J2Appender createAppender(
-            @PluginAttribute("name") String name,
+            @PluginAttribute(value = "name", defaultString = APPENDER_NAME) String name,
             @PluginElement("Filter") final Filter filter,
-            @PluginAttribute("maxEventQueueSize") Integer maxEventQueueSize) {
+            @PluginAttribute(value = "maxEventQueueSize", defaultInt = CloudwatchLogsConfig.DEFAULT_MAX_EVENT_QUEUE_SIZE) Integer maxEventQueueSize) {
         CloudwatchLogsLog4J2Appender appender = new CloudwatchLogsLog4J2Appender(name, filter, null, true);
-        if (maxEventQueueSize != null) {
-            appender.getConfig().setMaxEventQueueSize(maxEventQueueSize);
-        }
+        appender.getConfig().setMaxEventQueueSize(maxEventQueueSize);
         return appender;
     }
 

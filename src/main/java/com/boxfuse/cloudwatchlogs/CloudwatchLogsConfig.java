@@ -11,7 +11,12 @@ import java.util.Enumeration;
  * General configuration for the CloudWatch appender.
  */
 public class CloudwatchLogsConfig {
-    private int maxEventQueueSize = 1000000;
+    /**
+     * The default size of the async log event queue.
+     */
+    public static final int DEFAULT_MAX_EVENT_QUEUE_SIZE = 1000000;
+
+    private int maxEventQueueSize = DEFAULT_MAX_EVENT_QUEUE_SIZE;
 
     private String endpoint = System.getenv("BOXFUSE_CLOUDWATCHLOGS_ENDPOINT");
     private String env = System.getenv("BOXFUSE_ENV");
@@ -46,7 +51,7 @@ public class CloudwatchLogsConfig {
      */
     public void setMaxEventQueueSize(int maxEventQueueSize) {
         if (maxEventQueueSize < 1) {
-            throw new IllegalArgumentException("maxEventQueueSize may not be smaller than 1");
+            throw new IllegalArgumentException("maxEventQueueSize may not be smaller than 1 but was " + maxEventQueueSize);
         }
         this.maxEventQueueSize = maxEventQueueSize;
     }
