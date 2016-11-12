@@ -4,7 +4,7 @@
 
     <groupId>com.boxfuse.cloudwatchlogs</groupId>
     <artifactId>cloudwatchlogs-java-appender</artifactId>
-    <version>1.0.0.${revision}</version>
+    <version>1.0.1.${revision}</version>
     <packaging>jar</packaging>
     <name>${project.artifactId}</name>
 
