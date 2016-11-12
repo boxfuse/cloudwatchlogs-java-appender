@@ -99,15 +99,13 @@ public class CloudwatchLogsLogEventPutter implements Runnable {
                 }
                 batchSize += eventJson.getBytes(StandardCharsets.UTF_8).length;
                 int batchCount = eventBatch.size();
-                if (batchCount >= MAX_BATCH_COUNT || batchSize >= MAX_BATCH_SIZE || isTimeToFlush()) {
+                if (batchCount >= MAX_BATCH_COUNT || batchSize >= MAX_BATCH_SIZE) {
                     flush();
                 }
 
                 eventBatch.add(new InputLogEvent().withMessage(eventJson).withTimestamp(event.getTimestamp()));
             } else {
-                if (!eventBatch.isEmpty() && isTimeToFlush()) {
-                    flush();
-                }
+                flush();
                 try {
                     Thread.sleep(100);
                 } catch (InterruptedException e) {
@@ -122,29 +120,31 @@ public class CloudwatchLogsLogEventPutter implements Runnable {
     }
 
     private void flush() {
-        boolean retry;
-        do {
-            retry = false;
-            PutLogEventsRequest request =
-                    new PutLogEventsRequest(logGroupName, app, eventBatch).withSequenceToken(nextSequenceToken);
-            try {
-                PutLogEventsResult result = logsClient.putLogEvents(request);
-                nextSequenceToken = result.getNextSequenceToken();
-            } catch (InvalidSequenceTokenException e) {
-                nextSequenceToken = e.getExpectedSequenceToken();
-                retry = true;
-            } catch (ServiceUnavailableException e) {
+        if (!eventBatch.isEmpty() && isTimeToFlush()) {
+            boolean retry;
+            do {
+                retry = false;
+                PutLogEventsRequest request =
+                        new PutLogEventsRequest(logGroupName, app, eventBatch).withSequenceToken(nextSequenceToken);
                 try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e1) {
-                    // Ignore
+                    PutLogEventsResult result = logsClient.putLogEvents(request);
+                    nextSequenceToken = result.getNextSequenceToken();
+                } catch (InvalidSequenceTokenException e) {
+                    nextSequenceToken = e.getExpectedSequenceToken();
+                    retry = true;
+                } catch (ServiceUnavailableException e) {
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e1) {
+                        // Ignore
+                    }
+                    retry = true;
                 }
-                retry = true;
-            }
-        } while (retry);
-        eventBatch = new ArrayList<>();
-        batchSize = 0;
-        lastFlush = System.nanoTime();
+            } while (retry);
+            eventBatch = new ArrayList<>();
+            batchSize = 0;
+            lastFlush = System.nanoTime();
+        }
     }
 
     /* private -> for testing */ String toJson(Map<String, Object> eventMap) throws JsonProcessingException {
