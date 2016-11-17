@@ -38,7 +38,7 @@ Then add the dependency:
 <dependency>
     <groupId>com.boxfuse.cloudwatchlogs</groupId>
     <artifactId>cloudwatchlogs-java-appender</artifactId>
-    <version>1.0.1.15</version>
+    <version>1.0.2.17</version>
 </dependency>
 ```
 
@@ -59,7 +59,7 @@ Then add the dependency:
 
 ```
 dependencies {
-    compile 'com.boxfuse.cloudwatchlogs:cloudwatchlogs-java-appender:1.0.1.15'
+    compile 'com.boxfuse.cloudwatchlogs:cloudwatchlogs-java-appender:1.0.2.17'
 }
 ```
 
