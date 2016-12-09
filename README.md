@@ -2,7 +2,7 @@
 
 The Boxfuse Java log appender for AWS CloudWatch Logs is a logging appender that ships your log events directly and securely to AWS CloudWatch Logs via HTTPS.
 
-**Supported logging systems:** LogBack, Log4J2
+**Supported logging systems:** Logback, Log4J2
 
 All log events are *structured* and *standardized*. Each Boxfuse [environment](https://boxfuse.com/docs/environments) maps to an AWS CloudWatch Logs
 *LogGroup* which contains one *LogStream* per application.
@@ -67,7 +67,7 @@ dependencies {
 
 To use the appender you must add it to the configuration of your logging system.
 
-### LogBack
+### Logback
 
 Add the appender to your `logback.xml` file at the root of your classpath. In a Maven or Gradle project you can find it under src/main/resources :
 
