@@ -1,5 +1,6 @@
 package com.boxfuse.cloudwatchlogs.internal;
 
+import com.amazonaws.AmazonServiceException;
 import com.amazonaws.auth.AnonymousAWSCredentials;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
@@ -7,6 +8,7 @@ import com.amazonaws.services.logs.AWSLogs;
 import com.amazonaws.services.logs.AWSLogsClient;
 import com.amazonaws.services.logs.model.InputLogEvent;
 import com.amazonaws.services.logs.model.InvalidSequenceTokenException;
+import com.amazonaws.services.logs.model.OperationAbortedException;
 import com.amazonaws.services.logs.model.PutLogEventsRequest;
 import com.amazonaws.services.logs.model.PutLogEventsResult;
 import com.amazonaws.services.logs.model.ServiceUnavailableException;
@@ -17,6 +19,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -121,6 +125,12 @@ public class CloudwatchLogsLogEventPutter implements Runnable {
 
     private void flush() {
         if (!eventBatch.isEmpty() && isTimeToFlush()) {
+            Collections.sort(eventBatch, new Comparator<InputLogEvent>() {
+                @Override
+                public int compare(InputLogEvent o1, InputLogEvent o2) {
+                    return o1.getTimestamp().compareTo(o2.getTimestamp());
+                }
+            });
             boolean retry;
             do {
                 retry = false;
@@ -132,13 +142,15 @@ public class CloudwatchLogsLogEventPutter implements Runnable {
                 } catch (InvalidSequenceTokenException e) {
                     nextSequenceToken = e.getExpectedSequenceToken();
                     retry = true;
-                } catch (ServiceUnavailableException e) {
+                } catch (ServiceUnavailableException | OperationAbortedException e) {
                     try {
                         Thread.sleep(1000);
                     } catch (InterruptedException e1) {
                         // Ignore
                     }
                     retry = true;
+                } catch (AmazonServiceException e) {
+                    System.out.println("Unable to send logs to AWS CloudWatch Logs (" + e.getMessage() + "). Dropping log events batch ...");
                 }
             } while (retry);
             eventBatch = new ArrayList<>();

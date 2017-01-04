@@ -38,7 +38,7 @@ Then add the dependency:
 <dependency>
     <groupId>com.boxfuse.cloudwatchlogs</groupId>
     <artifactId>cloudwatchlogs-java-appender</artifactId>
-    <version>1.0.2.17</version>
+    <version>1.0.3.20</version>
 </dependency>
 ```
 
@@ -59,7 +59,7 @@ Then add the dependency:
 
 ```
 dependencies {
-    compile 'com.boxfuse.cloudwatchlogs:cloudwatchlogs-java-appender:1.0.2.17'
+    compile 'com.boxfuse.cloudwatchlogs:cloudwatchlogs-java-appender:1.0.3.20'
 }
 ```
 
@@ -211,6 +211,17 @@ The log events are shipped asynchronously on a separate background thread, leavi
  
  If you are seeing dropped messages without having been affected by AWS CloudWatch Logs availability issues,
  you should consider increasing `maxEventQueueSize` in the config to allow more log events to be buffered before having to drop them.
+
+## Version History
+
+### 1.0.3 (2017-01-04)
+
+- Fixed: Do not let log thread die after an exception / auto-restart if possible
+- Fixed: Enforce that all events within a single PutLogEvents call are always chronological 
+ 
+### 1.0.2 (2016-11-02)
+
+- Initial release
  
 ## License
 
