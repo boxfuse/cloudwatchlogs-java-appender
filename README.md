@@ -1,6 +1,6 @@
 # cloudwatchlogs-java-appender [![Build Status](https://api.travis-ci.org/boxfuse/cloudwatchlogs-java-appender.svg)](https://travis-ci.org/boxfuse/cloudwatchlogs-java-appender) [![GitHub license](https://img.shields.io/badge/license-Apache%20License%202.0-blue.svg?style=flat)](http://www.apache.org/licenses/LICENSE-2.0)
 
-The Boxfuse Java log appender for AWS CloudWatch Logs is a LogBack and Log4J2 appender that ships your log events directly and securely to AWS CloudWatch Logs via HTTPS.
+The Boxfuse Java log appender for AWS CloudWatch Logs is a Logback and Log4J2 appender that ships your log events directly and securely to AWS CloudWatch Logs via HTTPS.
 
 All log events are *structured* and *standardized*. Each Boxfuse [environment](https://boxfuse.com/docs/environments) maps to an AWS CloudWatch Logs
 *LogGroup* which contains one *LogStream* per application.
