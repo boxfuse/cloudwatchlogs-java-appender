@@ -6,14 +6,25 @@ import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.logs.AWSLogs;
 import com.amazonaws.services.logs.AWSLogsClient;
-import com.amazonaws.services.logs.model.*;
+import com.amazonaws.services.logs.model.InputLogEvent;
+import com.amazonaws.services.logs.model.InvalidSequenceTokenException;
+import com.amazonaws.services.logs.model.OperationAbortedException;
+import com.amazonaws.services.logs.model.PutLogEventsRequest;
+import com.amazonaws.services.logs.model.PutLogEventsResult;
+import com.amazonaws.services.logs.model.ServiceUnavailableException;
 import com.boxfuse.cloudwatchlogs.CloudwatchLogsConfig;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.BlockingQueue;
 
 public class CloudwatchLogsLogEventPutter implements Runnable {
@@ -49,6 +60,7 @@ public class CloudwatchLogsLogEventPutter implements Runnable {
                 logsClient.setRegion(Region.getRegion(Regions.fromName(awsRegion)));
             }
         } else {
+            // Non-AWS mock endpoint
             logsClient = new AWSLogsClient(new AnonymousAWSCredentials());
             logsClient.setEndpoint(config.getEndpoint());
         }
@@ -56,7 +68,7 @@ public class CloudwatchLogsLogEventPutter implements Runnable {
 
     @Override
     public void run() {
-        if (!enabled) {
+        if (!enabled && !config.isStdoutFallback()) {
             System.out.println("WARNING: AWS CloudWatch Logs appender is disabled (Unable to detect the AWS region and no CloudWatch Logs endpoint specified)");
             return;
         }
@@ -91,13 +103,21 @@ public class CloudwatchLogsLogEventPutter implements Runnable {
                     System.out.println("Unable to serialize log event: " + eventMap);
                     continue;
                 }
-                batchSize += eventJson.getBytes(StandardCharsets.UTF_8).length;
-                int batchCount = eventBatch.size();
-                if (batchCount >= MAX_BATCH_COUNT || batchSize >= MAX_BATCH_SIZE) {
+
+                // Source: http://docs.aws.amazon.com/AmazonCloudWatchLogs/latest/APIReference/API_PutLogEvents.html
+                // The maximum batch size is 1,048,576 bytes,
+                int eventSize =
+                        // and this size is calculated as the sum of all event messages in UTF-8,
+                        eventJson.getBytes(StandardCharsets.UTF_8).length
+                                // plus 26 bytes for each log event.
+                                + 26;
+
+                if ((eventBatch.size() + 1) >= MAX_BATCH_COUNT || (batchSize + eventSize) >= MAX_BATCH_SIZE) {
                     flush();
                 }
 
                 eventBatch.add(new InputLogEvent().withMessage(eventJson).withTimestamp(event.getTimestamp()));
+                batchSize += eventSize;
             } else {
                 flush();
                 try {
@@ -124,23 +144,29 @@ public class CloudwatchLogsLogEventPutter implements Runnable {
             boolean retry;
             do {
                 retry = false;
-                PutLogEventsRequest request =
-                        new PutLogEventsRequest(logGroupName, app, eventBatch).withSequenceToken(nextSequenceToken);
-                try {
-                    PutLogEventsResult result = logsClient.putLogEvents(request);
-                    nextSequenceToken = result.getNextSequenceToken();
-                } catch (InvalidSequenceTokenException e) {
-                    nextSequenceToken = e.getExpectedSequenceToken();
-                    retry = true;
-                } catch (ServiceUnavailableException | OperationAbortedException e) {
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e1) {
-                        // Ignore
+                if (!enabled && config.isStdoutFallback()) {
+                    for (InputLogEvent event : eventBatch) {
+                        System.out.println(new SimpleDateFormat("YYYY-MM-dd HH:mm:ss.SSS").format(event.getTimestamp()) + " " + logGroupName + " " + app + " " + event.getMessage());
                     }
-                    retry = true;
-                } catch (AmazonServiceException e) {
-                    System.out.println("Unable to send logs to AWS CloudWatch Logs (" + e.getMessage() + "). Dropping log events batch ...");
+                } else {
+                    PutLogEventsRequest request =
+                            new PutLogEventsRequest(logGroupName, app, eventBatch).withSequenceToken(nextSequenceToken);
+                    try {
+                        PutLogEventsResult result = logsClient.putLogEvents(request);
+                        nextSequenceToken = result.getNextSequenceToken();
+                    } catch (InvalidSequenceTokenException e) {
+                        nextSequenceToken = e.getExpectedSequenceToken();
+                        retry = true;
+                    } catch (ServiceUnavailableException | OperationAbortedException e) {
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException e1) {
+                            // Ignore
+                        }
+                        retry = true;
+                    } catch (AmazonServiceException e) {
+                        System.out.println("Unable to send logs to AWS CloudWatch Logs (" + e.getMessage() + "). Dropping log events batch ...");
+                    }
                 }
             } while (retry);
             eventBatch = new ArrayList<>();

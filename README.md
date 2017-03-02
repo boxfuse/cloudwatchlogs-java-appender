@@ -22,7 +22,7 @@ To include the Boxfuse Java log appender for AWS CloudWatch Logs in your applica
 
 Start by adding the Boxfuse Maven repository to your list of repositories in your `pom.xml`:
 
-```
+```xml
 <repositories>
     <repository>
         <id>central</id>
@@ -37,11 +37,11 @@ Start by adding the Boxfuse Maven repository to your list of repositories in you
 
 Then add the dependency:
 
-```
+```xml
 <dependency>
     <groupId>com.boxfuse.cloudwatchlogs</groupId>
     <artifactId>cloudwatchlogs-java-appender</artifactId>
-    <version>1.0.3.20</version>
+    <version>1.1.0.23</version>
 </dependency>
 ```
 
@@ -49,7 +49,7 @@ Then add the dependency:
 
 Start by adding the Boxfuse Maven repository to your list of repositories in your `build.gradle`:
 
-```
+```groovy
 repositories {
     mavenCentral()
     maven {
@@ -60,9 +60,9 @@ repositories {
 
 Then add the dependency:
 
-```
+```groovy
 dependencies {
-    compile 'com.boxfuse.cloudwatchlogs:cloudwatchlogs-java-appender:1.0.3.20'
+    compile 'com.boxfuse.cloudwatchlogs:cloudwatchlogs-java-appender:1.1.0.23'
 }
 ```
 
@@ -74,9 +74,20 @@ To use the appender you must add it to the configuration of your logging system.
 
 Add the appender to your `logback.xml` file at the root of your classpath. In a Maven or Gradle project you can find it under src/main/resources :
 
-```
+```xml
 <configuration>
-    <appender name="Boxfuse-CloudwatchLogs" class="com.boxfuse.cloudwatchlogs.logback.CloudwatchLogsLogbackAppender"/>
+    <appender name="Boxfuse-CloudwatchLogs" class="com.boxfuse.cloudwatchlogs.logback.CloudwatchLogsLogbackAppender">
+        <!-- Optional config parameters -->
+        <config>
+            <!-- Whether to fall back to stdout instead of disabling the appender when running outside of a Boxfuse instance. Default: false -->
+            <stdoutFallback>false</stdoutFallback>
+            
+            <!-- The maximum size of the async log event queue. Default: 1000000.
+                 Increase to avoid dropping log events at very high throughput.
+                 Decrease to reduce maximum memory usage at the risk if the occasional log event drop when it gets full. -->
+            <maxEventQueueSize>1000000</maxEventQueueSize>
+        </config>    
+    </appender>
 
     <root level="debug">
         <appender-ref ref="Boxfuse-CloudwatchLogs" />
@@ -88,11 +99,21 @@ Add the appender to your `logback.xml` file at the root of your classpath. In a 
 
 Add the appender to your `log4j2.xml` file at the root of your classpath. In a Maven or Gradle project you can find it under src/main/resources :
 
-```
+```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration packages="com.boxfuse.cloudwatchlogs.log4j2">
     <Appenders>
-        <Boxfuse-CloudwatchLogs/>
+        <Boxfuse-CloudwatchLogs>
+            <!-- Optional config parameters -->
+            
+            <!-- Whether to fall back to stdout instead of disabling the appender when running outside of a Boxfuse instance. Default: false -->
+            <stdoutFallback>false</stdoutFallback>
+            
+            <!-- The maximum size of the async log event queue. Default: 1000000.
+                 Increase to avoid dropping log events at very high throughput.
+                 Decrease to reduce maximum memory usage at the risk if the occasional log event drop when it gets full. -->
+            <maxEventQueueSize>1000000</maxEventQueueSize>
+        </Boxfuse-CloudwatchLogs>
     </Appenders>
     <Loggers>
         <Root level="debug">
@@ -112,7 +133,7 @@ All log events are *structured* and *standardized*. What this means is that inst
 
 events are shipped as JSON documents will all required metadata:
 
-```
+```json
 {
     "image": "myuser/myapp:123",
     "instance": "i-607b5ddc",
@@ -145,7 +166,7 @@ A number of log event attributes are populated automatically when the appender i
 
 When logging a message from your code using SLF4J as follows:
 
-```
+```java
 Logger log = LoggerFactory.getLogger(MyClass.class);
 ...
 log.info("My log message");
@@ -160,7 +181,7 @@ the timestamp of the log event is added to its metadata and the following attrib
 
 When using an SLF4J marker you can also make it much easier to filter specific event types. The following code:
 
-```
+```java
 Logger log = LoggerFactory.getLogger(MyClass.class);
 Marker USER_CREATED = MarkerFactory.getMarker("USER_CREATED");
 String username = "MyUser";
@@ -184,7 +205,7 @@ Additionally a number of optional attributes can also be defined via MDC to prov
 
 They are populated in the MDC as follows:
 
-```
+```java
 MDC.put(CloudwatchLogsMDCPropertyNames.ACCOUNT, "MyCurrentAccount");
 MDC.put(CloudwatchLogsMDCPropertyNames.ACTION, "order-12345");
 MDC.put(CloudwatchLogsMDCPropertyNames.USER, "MyUser");
@@ -194,7 +215,7 @@ MDC.put(CloudwatchLogsMDCPropertyNames.REQUEST, "req-111222333");
 
 When finishing processing (after sending out a response for example) they should be cleaned up again to prevent mixups:
 
-```
+```java
 MDC.remove(CloudwatchLogsMDCPropertyNames.ACCOUNT);
 MDC.remove(CloudwatchLogsMDCPropertyNames.ACTION);
 MDC.remove(CloudwatchLogsMDCPropertyNames.USER);
@@ -217,7 +238,12 @@ The log events are shipped asynchronously on a separate background thread, leavi
 
 ## Version History
 
-### 1.0.3 (2017-01-04)
+### 1.1.0.23 (2017-03-02)
+
+- Added `stdoutFallback` configuration property
+- Fixed: Maximum batch size enforcement before flushing events to CloudWatch Logs 
+ 
+### 1.0.3.20 (2017-01-04)
 
 - Fixed: Do not let log thread die after an exception / auto-restart if possible
 - Fixed: Enforce that all events within a single PutLogEvents call are always chronological 
@@ -228,7 +254,7 @@ The log events are shipped asynchronously on a separate background thread, leavi
  
 ## License
 
-Copyright (C) 2016 Boxfuse GmbH
+Copyright (C) 2017 Boxfuse GmbH
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
 

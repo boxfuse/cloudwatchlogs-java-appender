@@ -9,7 +9,7 @@ import java.util.concurrent.LinkedBlockingQueue;
  * Created by kawnayeen on 3/2/17.
  */
 public class CloudwatchAppender {
-    private final CloudwatchLogsConfig config = new CloudwatchLogsConfig();
+    private CloudwatchLogsConfig config = new CloudwatchLogsConfig();
     private BlockingQueue<CloudwatchLogsLogEvent> eventQueue;
     private CloudwatchLogsLogEventPutter putter;
     private long discardedCount;
@@ -45,5 +45,9 @@ public class CloudwatchAppender {
      */
     public long getDiscardedCount() {
         return discardedCount;
+    }
+
+    public void setConfig(CloudwatchLogsConfig config){
+        this.config = config;
     }
 }

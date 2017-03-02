@@ -21,6 +21,13 @@ public class CloudwatchLogsLogbackAppender extends AppenderBase<ILoggingEvent> {
         return cloudwatchAppender.getConfig();
     }
 
+    /**
+     * @param config The config of the appender.
+     */
+    public void setConfig(CloudwatchLogsConfig config) {
+        this.cloudwatchAppender.setConfig(config);
+    }
+
     @Override
     public void start() {
         super.start();

@@ -1,6 +1,10 @@
 package com.boxfuse.cloudwatchlogs;
 
-import java.net.*;
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.Enumeration;
 
 /**
@@ -19,6 +23,8 @@ public class CloudwatchLogsConfig {
     private String image = System.getenv("BOXFUSE_IMAGE_COORDINATES");
     private String instance = System.getenv("BOXFUSE_INSTANCE_ID");
 
+    private boolean stdoutFallback;
+
     public CloudwatchLogsConfig() {
         if (env == null) {
             env = "##unknown##";
@@ -31,50 +37,18 @@ public class CloudwatchLogsConfig {
         }
     }
 
-    private static String getHostName() {
-        try {
-            return InetAddress.getLocalHost().getHostName();
-        } catch (UnknownHostException var1) {
-            return getHostIp();
-        }
+    /**
+     * @return Whether to fall back to stdout instead of disabling the appender when running outside of a Boxfuse instance. Default: false.
+     */
+    public boolean isStdoutFallback() {
+        return stdoutFallback;
     }
 
-    private static String getHostIp() {
-        try {
-            Enumeration e = NetworkInterface.getNetworkInterfaces();
-            String backupCandidate = null;
-
-            while (true) {
-                NetworkInterface networkInterface;
-                do {
-                    if (!e.hasMoreElements()) {
-                        if (backupCandidate != null) {
-                            return backupCandidate;
-                        }
-
-                        return "<<unknown>>";
-                    }
-
-                    networkInterface = (NetworkInterface) e.nextElement();
-                } while (!networkInterface.isUp());
-
-                boolean firstChoice = !networkInterface.getName().contains("vboxnet") && !networkInterface.getName().contains("vmnet") && (networkInterface.getDisplayName() == null || !networkInterface.getDisplayName().contains("VirtualBox") && !networkInterface.getDisplayName().contains("VMware"));
-                Enumeration inetAddresses = networkInterface.getInetAddresses();
-
-                while (inetAddresses.hasMoreElements()) {
-                    InetAddress inetAddress = (InetAddress) inetAddresses.nextElement();
-                    if (inetAddress instanceof Inet4Address && !inetAddress.isLoopbackAddress()) {
-                        if (firstChoice) {
-                            return inetAddress.getHostAddress();
-                        }
-
-                        backupCandidate = inetAddress.getHostAddress();
-                    }
-                }
-            }
-        } catch (SocketException var6) {
-            return "<<unknown>>";
-        }
+    /**
+     * @param stdoutFallback Whether to fall back to stdout instead of disabling the appender when running outside of a Boxfuse instance. Default: false.
+     */
+    public void setStdoutFallback(boolean stdoutFallback) {
+        this.stdoutFallback = stdoutFallback;
     }
 
     /**
@@ -161,5 +135,51 @@ public class CloudwatchLogsConfig {
             throw new IllegalArgumentException("instance may not be null");
         }
         this.instance = instance;
+    }
+
+    private static String getHostName() {
+        try {
+            return InetAddress.getLocalHost().getHostName();
+        } catch (UnknownHostException var1) {
+            return getHostIp();
+        }
+    }
+
+    private static String getHostIp() {
+        try {
+            Enumeration e = NetworkInterface.getNetworkInterfaces();
+            String backupCandidate = null;
+
+            while (true) {
+                NetworkInterface networkInterface;
+                do {
+                    if (!e.hasMoreElements()) {
+                        if (backupCandidate != null) {
+                            return backupCandidate;
+                        }
+
+                        return "<<unknown>>";
+                    }
+
+                    networkInterface = (NetworkInterface) e.nextElement();
+                } while (!networkInterface.isUp());
+
+                boolean firstChoice = !networkInterface.getName().contains("vboxnet") && !networkInterface.getName().contains("vmnet") && (networkInterface.getDisplayName() == null || !networkInterface.getDisplayName().contains("VirtualBox") && !networkInterface.getDisplayName().contains("VMware"));
+                Enumeration inetAddresses = networkInterface.getInetAddresses();
+
+                while (inetAddresses.hasMoreElements()) {
+                    InetAddress inetAddress = (InetAddress) inetAddresses.nextElement();
+                    if (inetAddress instanceof Inet4Address && !inetAddress.isLoopbackAddress()) {
+                        if (firstChoice) {
+                            return inetAddress.getHostAddress();
+                        }
+
+                        backupCandidate = inetAddress.getHostAddress();
+                    }
+                }
+            }
+        } catch (SocketException var6) {
+            return "<<unknown>>";
+        }
     }
 }
