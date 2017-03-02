@@ -5,9 +5,24 @@ package com.boxfuse.cloudwatchlogs.internal;
  */
 public interface LogEventWrapper {
     String getAccount();
+
     String getAction();
+
     String getUser();
+
     String getSession();
+
     String getRequest();
+
     String getEventId();
+
+    String getMessage();
+
+    String getLevel();
+
+    String getLoggerName();
+
+    long getTimeInMillis();
+
+    String getThreadName();
 }
