@@ -190,26 +190,8 @@
                     <includes>
                         <include>**/*SmallTest.java</include>
                     </includes>
-                    <parallel>methods</parallel>
-                    <threadCount>2</threadCount>
-                    <perCoreThreadCount>true</perCoreThreadCount>
                     <redirectTestOutputToFile>true</redirectTestOutputToFile>
                 </configuration>
-                <executions>
-                    <execution>
-                        <id>medium-tests</id>
-                        <goals>
-                            <goal>test</goal>
-                        </goals>
-                        <configuration>
-                            <includes>
-                                <include>**/*MediumTest.java</include>
-                            </includes>
-                            <parallel>classes</parallel>
-                            <redirectTestOutputToFile>true</redirectTestOutputToFile>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
             <plugin>
                 <artifactId>maven-deploy-plugin</artifactId>
