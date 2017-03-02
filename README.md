@@ -238,7 +238,12 @@ The log events are shipped asynchronously on a separate background thread, leavi
 
 ## Version History
 
-### 1.0.3 (2017-01-04)
+### 1.1.0.23 (2017-03-02)
+
+- Added `stdoutFallback` configuration property
+- Fixed: Maximum batch size enforcement before flushing events to CloudWatch Logs 
+ 
+### 1.0.3.20 (2017-01-04)
 
 - Fixed: Do not let log thread die after an exception / auto-restart if possible
 - Fixed: Enforce that all events within a single PutLogEvents call are always chronological 
@@ -249,7 +254,7 @@ The log events are shipped asynchronously on a separate background thread, leavi
  
 ## License
 
-Copyright (C) 2016 Boxfuse GmbH
+Copyright (C) 2017 Boxfuse GmbH
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
 
