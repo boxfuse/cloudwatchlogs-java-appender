@@ -8,40 +8,32 @@ import ch.qos.logback.core.AppenderBase;
 import ch.qos.logback.core.CoreConstants;
 import com.boxfuse.cloudwatchlogs.CloudwatchLogsConfig;
 import com.boxfuse.cloudwatchlogs.CloudwatchLogsMDCPropertyNames;
+import com.boxfuse.cloudwatchlogs.internal.CloudwatchAppender;
 import com.boxfuse.cloudwatchlogs.internal.CloudwatchLogsLogEvent;
-import com.boxfuse.cloudwatchlogs.internal.CloudwatchLogsLogEventPutter;
 import org.slf4j.Marker;
-
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * LogBack appender for Boxfuse's AWS CloudWatch Logs integration.
  */
 public class CloudwatchLogsLogbackAppender extends AppenderBase<ILoggingEvent> {
-    private final CloudwatchLogsConfig config = new CloudwatchLogsConfig();
-    private BlockingQueue<CloudwatchLogsLogEvent> eventQueue;
-    private CloudwatchLogsLogEventPutter putter;
-    private long discardedCount;
+    private CloudwatchAppender cloudwatchAppender = new CloudwatchAppender();
 
     /**
      * @return The config of the appender. This instance can be modified to override defaults.
      */
     public CloudwatchLogsConfig getConfig() {
-        return config;
+        return cloudwatchAppender.getConfig();
     }
 
     @Override
     public void start() {
         super.start();
-        eventQueue = new LinkedBlockingQueue<>(config.getMaxEventQueueSize());
-        putter = new CloudwatchLogsLogEventPutter(config, eventQueue);
-        new Thread(putter).start();
+        cloudwatchAppender.start();
     }
 
     @Override
     public void stop() {
-        putter.terminate();
+        cloudwatchAppender.stop();
         super.stop();
     }
 
@@ -51,7 +43,7 @@ public class CloudwatchLogsLogbackAppender extends AppenderBase<ILoggingEvent> {
      * you should consider increasing maxEventQueueSize in the config to allow more log events to be buffer before having to drop them.
      */
     public long getDiscardedCount() {
-        return discardedCount;
+        return cloudwatchAppender.getDiscardedCount();
     }
 
     @Override
@@ -74,13 +66,8 @@ public class CloudwatchLogsLogbackAppender extends AppenderBase<ILoggingEvent> {
 
         Marker marker = event.getMarker();
         String eventId = marker == null ? null : marker.getName();
-
         CloudwatchLogsLogEvent logEvent = new CloudwatchLogsLogEvent(event.getLevel().toString(), event.getLoggerName(), eventId, message, event.getTimeStamp(), event.getThreadName(), account, action, user, session, request);
-        while (!eventQueue.offer(logEvent)) {
-            // Discard old logging messages while queue is full.
-            eventQueue.poll();
-            discardedCount++;
-        }
+        cloudwatchAppender.append(logEvent);
     }
 
     private String dump(IThrowableProxy throwableProxy) {
