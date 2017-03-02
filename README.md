@@ -60,7 +60,7 @@ repositories {
 
 Then add the dependency:
 
-```
+```groovy
 dependencies {
     compile 'com.boxfuse.cloudwatchlogs:cloudwatchlogs-java-appender:1.1.0.23'
 }
