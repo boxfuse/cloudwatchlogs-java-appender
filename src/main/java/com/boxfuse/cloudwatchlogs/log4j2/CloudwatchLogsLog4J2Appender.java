@@ -5,6 +5,7 @@ import com.boxfuse.cloudwatchlogs.CloudwatchLogsMDCPropertyNames;
 import com.boxfuse.cloudwatchlogs.internal.CloudwatchLogsLogEvent;
 import com.boxfuse.cloudwatchlogs.internal.CloudwatchLogsLogEventPutter;
 import org.apache.logging.log4j.Marker;
+import org.apache.logging.log4j.core.Appender;
 import org.apache.logging.log4j.core.Filter;
 import org.apache.logging.log4j.core.Layout;
 import org.apache.logging.log4j.core.LogEvent;
@@ -21,7 +22,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 /**
  * Log4J2 appender for Boxfuse's AWS CloudWatch Logs integration.
  */
-@Plugin(name = CloudwatchLogsLog4J2Appender.APPENDER_NAME, category = "Core", elementType = "appender", printObject = true)
+@Plugin(name = CloudwatchLogsLog4J2Appender.APPENDER_NAME, category = "Core", elementType = Appender.ELEMENT_TYPE, printObject = true)
 public class CloudwatchLogsLog4J2Appender extends AbstractAppender {
     static final String APPENDER_NAME = "Boxfuse-CloudwatchLogs";
     private final CloudwatchLogsConfig config = new CloudwatchLogsConfig();
@@ -45,8 +46,28 @@ public class CloudwatchLogsLog4J2Appender extends AbstractAppender {
     public static CloudwatchLogsLog4J2Appender createAppender(
             @PluginAttribute(value = "name", defaultString = APPENDER_NAME) String name,
             @PluginElement("Filter") final Filter filter,
+            @PluginAttribute(value = "stdoutFallback") Boolean stdoutFallback,
+            @PluginAttribute(value = "endpoint") String endpoint,
+            @PluginAttribute(value = "env") String env,
+            @PluginAttribute(value = "image") String image,
+            @PluginAttribute(value = "instance") String instance,
             @PluginAttribute(value = "maxEventQueueSize", defaultInt = CloudwatchLogsConfig.DEFAULT_MAX_EVENT_QUEUE_SIZE) Integer maxEventQueueSize) {
         CloudwatchLogsLog4J2Appender appender = new CloudwatchLogsLog4J2Appender(name, filter, null, true);
+        if (stdoutFallback != null) {
+            appender.getConfig().setStdoutFallback(stdoutFallback);
+        }
+        if (endpoint != null) {
+            appender.getConfig().setEndpoint(endpoint);
+        }
+        if (env != null) {
+            appender.getConfig().setEnv(env);
+        }
+        if (image != null) {
+            appender.getConfig().setImage(image);
+        }
+        if (instance != null) {
+            appender.getConfig().setInstance(instance);
+        }
         appender.getConfig().setMaxEventQueueSize(maxEventQueueSize);
         return appender;
     }

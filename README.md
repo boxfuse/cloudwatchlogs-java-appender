@@ -38,7 +38,7 @@ Then add the dependency:
 <dependency>
     <groupId>com.boxfuse.cloudwatchlogs</groupId>
     <artifactId>cloudwatchlogs-java-appender</artifactId>
-    <version>1.0.3.20</version>
+    <version>1.1.0.23</version>
 </dependency>
 ```
 
@@ -59,7 +59,7 @@ Then add the dependency:
 
 ```
 dependencies {
-    compile 'com.boxfuse.cloudwatchlogs:cloudwatchlogs-java-appender:1.0.3.20'
+    compile 'com.boxfuse.cloudwatchlogs:cloudwatchlogs-java-appender:1.1.0.23'
 }
 ```
 
@@ -73,7 +73,18 @@ Add the appender to your `logback.xml` file at the root of your classpath. In a 
 
 ```
 <configuration>
-    <appender name="Boxfuse-CloudwatchLogs" class="com.boxfuse.cloudwatchlogs.logback.CloudwatchLogsLogbackAppender"/>
+    <appender name="Boxfuse-CloudwatchLogs" class="com.boxfuse.cloudwatchlogs.logback.CloudwatchLogsLogbackAppender">
+        <!-- Optional config parameters -->
+        <config>
+            <!-- Whether to fall back to stdout instead of disabling the appender when running outside of a Boxfuse instance. Default: false -->
+            <stdoutFallback>false</stdoutFallback>
+            
+            <!-- The maximum size of the async log event queue. Default: 1000000.
+                 Increase to avoid dropping log events at very high throughput.
+                 Decrease to reduce maximum memory usage at the risk if the occasional log event drop when it gets full. -->
+            <maxEventQueueSize>1000000</maxEventQueueSize>
+        </config>    
+    </appender>
 
     <root level="debug">
         <appender-ref ref="Boxfuse-CloudwatchLogs" />
@@ -89,7 +100,17 @@ Add the appender to your `log4j2.xml` file at the root of your classpath. In a M
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration packages="com.boxfuse.cloudwatchlogs.log4j2">
     <Appenders>
-        <Boxfuse-CloudwatchLogs/>
+        <Boxfuse-CloudwatchLogs>
+            <!-- Optional config parameters -->
+            
+            <!-- Whether to fall back to stdout instead of disabling the appender when running outside of a Boxfuse instance. Default: false -->
+            <stdoutFallback>false</stdoutFallback>
+            
+            <!-- The maximum size of the async log event queue. Default: 1000000.
+                 Increase to avoid dropping log events at very high throughput.
+                 Decrease to reduce maximum memory usage at the risk if the occasional log event drop when it gets full. -->
+            <maxEventQueueSize>1000000</maxEventQueueSize>
+        </Boxfuse-CloudwatchLogs>
     </Appenders>
     <Loggers>
         <Root level="debug">

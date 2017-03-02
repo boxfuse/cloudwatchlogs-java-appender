@@ -19,7 +19,7 @@ import java.util.concurrent.LinkedBlockingQueue;
  * LogBack appender for Boxfuse's AWS CloudWatch Logs integration.
  */
 public class CloudwatchLogsLogbackAppender extends AppenderBase<ILoggingEvent> {
-    private final CloudwatchLogsConfig config = new CloudwatchLogsConfig();
+    private CloudwatchLogsConfig config = new CloudwatchLogsConfig();
     private BlockingQueue<CloudwatchLogsLogEvent> eventQueue;
     private CloudwatchLogsLogEventPutter putter;
     private long discardedCount;
@@ -29,6 +29,13 @@ public class CloudwatchLogsLogbackAppender extends AppenderBase<ILoggingEvent> {
      */
     public CloudwatchLogsConfig getConfig() {
         return config;
+    }
+
+    /**
+     * @param config The config of the appender.
+     */
+    public void setConfig(CloudwatchLogsConfig config) {
+        this.config = config;
     }
 
     @Override

@@ -23,6 +23,8 @@ public class CloudwatchLogsConfig {
     private String image = System.getenv("BOXFUSE_IMAGE_COORDINATES");
     private String instance = System.getenv("BOXFUSE_INSTANCE_ID");
 
+    private boolean stdoutFallback;
+
     public CloudwatchLogsConfig() {
         if (env == null) {
             env = "##unknown##";
@@ -33,6 +35,20 @@ public class CloudwatchLogsConfig {
         if (instance == null) {
             instance = getHostName();
         }
+    }
+
+    /**
+     * @return Whether to fall back to stdout instead of disabling the appender when running outside of a Boxfuse instance. Default: false.
+     */
+    public boolean isStdoutFallback() {
+        return stdoutFallback;
+    }
+
+    /**
+     * @param stdoutFallback Whether to fall back to stdout instead of disabling the appender when running outside of a Boxfuse instance. Default: false.
+     */
+    public void setStdoutFallback(boolean stdoutFallback) {
+        this.stdoutFallback = stdoutFallback;
     }
 
     /**

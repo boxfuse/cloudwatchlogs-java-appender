@@ -1,0 +1,11 @@
+<configuration>
+    <appender name="Boxfuse-CloudwatchLogs" class="com.boxfuse.cloudwatchlogs.logback.CloudwatchLogsLogbackAppender">
+        <config>
+            <stdoutFallback>true</stdoutFallback>
+        </config>
+    </appender>
+
+    <root level="debug">
+        <appender-ref ref="Boxfuse-CloudwatchLogs" />
+    </root>
+</configuration>
