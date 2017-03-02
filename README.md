@@ -22,7 +22,7 @@ To include the Boxfuse Java log appender for AWS CloudWatch Logs in your applica
 
 Start by adding the Boxfuse Maven repository to your list of repositories in your `pom.xml`:
 
-```
+```xml
 <repositories>
     <repository>
         <id>central</id>
@@ -37,7 +37,7 @@ Start by adding the Boxfuse Maven repository to your list of repositories in you
 
 Then add the dependency:
 
-```
+```xml
 <dependency>
     <groupId>com.boxfuse.cloudwatchlogs</groupId>
     <artifactId>cloudwatchlogs-java-appender</artifactId>
@@ -49,7 +49,7 @@ Then add the dependency:
 
 Start by adding the Boxfuse Maven repository to your list of repositories in your `build.gradle`:
 
-```
+```groovy
 repositories {
     mavenCentral()
     maven {
@@ -99,7 +99,7 @@ Add the appender to your `logback.xml` file at the root of your classpath. In a 
 
 Add the appender to your `log4j2.xml` file at the root of your classpath. In a Maven or Gradle project you can find it under src/main/resources :
 
-```
+```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration packages="com.boxfuse.cloudwatchlogs.log4j2">
     <Appenders>
@@ -133,7 +133,7 @@ All log events are *structured* and *standardized*. What this means is that inst
 
 events are shipped as JSON documents will all required metadata:
 
-```
+```json
 {
     "image": "myuser/myapp:123",
     "instance": "i-607b5ddc",
@@ -166,7 +166,7 @@ A number of log event attributes are populated automatically when the appender i
 
 When logging a message from your code using SLF4J as follows:
 
-```
+```java
 Logger log = LoggerFactory.getLogger(MyClass.class);
 ...
 log.info("My log message");
@@ -181,7 +181,7 @@ the timestamp of the log event is added to its metadata and the following attrib
 
 When using an SLF4J marker you can also make it much easier to filter specific event types. The following code:
 
-```
+```java
 Logger log = LoggerFactory.getLogger(MyClass.class);
 Marker USER_CREATED = MarkerFactory.getMarker("USER_CREATED");
 String username = "MyUser";
@@ -205,7 +205,7 @@ Additionally a number of optional attributes can also be defined via MDC to prov
 
 They are populated in the MDC as follows:
 
-```
+```java
 MDC.put(CloudwatchLogsMDCPropertyNames.ACCOUNT, "MyCurrentAccount");
 MDC.put(CloudwatchLogsMDCPropertyNames.ACTION, "order-12345");
 MDC.put(CloudwatchLogsMDCPropertyNames.USER, "MyUser");
@@ -215,7 +215,7 @@ MDC.put(CloudwatchLogsMDCPropertyNames.REQUEST, "req-111222333");
 
 When finishing processing (after sending out a response for example) they should be cleaned up again to prevent mixups:
 
-```
+```java
 MDC.remove(CloudwatchLogsMDCPropertyNames.ACCOUNT);
 MDC.remove(CloudwatchLogsMDCPropertyNames.ACTION);
 MDC.remove(CloudwatchLogsMDCPropertyNames.USER);
