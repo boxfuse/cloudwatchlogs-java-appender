@@ -74,7 +74,7 @@ To use the appender you must add it to the configuration of your logging system.
 
 Add the appender to your `logback.xml` file at the root of your classpath. In a Maven or Gradle project you can find it under src/main/resources :
 
-```
+```xml
 <configuration>
     <appender name="Boxfuse-CloudwatchLogs" class="com.boxfuse.cloudwatchlogs.logback.CloudwatchLogsLogbackAppender">
         <!-- Optional config parameters -->
