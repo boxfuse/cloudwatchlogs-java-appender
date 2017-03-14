@@ -41,7 +41,7 @@ Then add the dependency:
 <dependency>
     <groupId>com.boxfuse.cloudwatchlogs</groupId>
     <artifactId>cloudwatchlogs-java-appender</artifactId>
-    <version>1.1.0.23</version>
+    <version>1.1.1.29</version>
 </dependency>
 ```
 
@@ -62,9 +62,15 @@ Then add the dependency:
 
 ```groovy
 dependencies {
-    compile 'com.boxfuse.cloudwatchlogs:cloudwatchlogs-java-appender:1.1.0.23'
+    compile 'com.boxfuse.cloudwatchlogs:cloudwatchlogs-java-appender:1.1.1.29'
 }
 ```
+
+### Transitive dependencies
+
+Besides Logback or Log4J2 this appender also requires the following dependency (declared as a transitive dependency in the `pom.xml`):
+
+`com.amazonaws:aws-java-sdk-logs:1.1.51` (or newer)
 
 ## Usage
 
@@ -238,6 +244,10 @@ The log events are shipped asynchronously on a separate background thread, leavi
 
 ## Version History
 
+### 1.1.1.29 (2017-03-14)
+
+- Fixed: Exception name is now part of the message along with the stacktrace 
+ 
 ### 1.1.0.23 (2017-03-02)
 
 - Added `stdoutFallback` configuration property

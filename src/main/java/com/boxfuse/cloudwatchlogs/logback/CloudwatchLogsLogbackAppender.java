@@ -92,7 +92,7 @@ public class CloudwatchLogsLogbackAppender extends AppenderBase<ILoggingEvent> {
 
     private String dump(IThrowableProxy throwableProxy) {
         StringBuilder builder = new StringBuilder();
-        builder.append(throwableProxy.getMessage()).append(CoreConstants.LINE_SEPARATOR);
+        builder.append(throwableProxy.getClassName()).append(": ").append(throwableProxy.getMessage()).append(CoreConstants.LINE_SEPARATOR);
         for (StackTraceElementProxy step : throwableProxy.getStackTraceElementProxyArray()) {
             String string = step.toString();
             builder.append(CoreConstants.TAB).append(string);

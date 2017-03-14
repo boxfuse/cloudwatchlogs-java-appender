@@ -132,7 +132,7 @@ public class CloudwatchLogsLog4J2Appender extends AbstractAppender {
 
     private String dump(Throwable throwableProxy) {
         StringBuilder builder = new StringBuilder();
-        builder.append(throwableProxy.getMessage()).append("\n");
+        builder.append(throwableProxy.getClass().getName()).append(": ").append(throwableProxy.getMessage()).append("\n");
         for (StackTraceElement step : throwableProxy.getStackTrace()) {
             String string = step.toString();
             builder.append("\t").append(string);
