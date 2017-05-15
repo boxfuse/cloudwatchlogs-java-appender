@@ -1,6 +1,6 @@
 package com.boxfuse.cloudwatchlogs.internal;
 
-import com.amazonaws.AmazonServiceException;
+import com.amazonaws.SdkClientException;
 import com.amazonaws.auth.AnonymousAWSCredentials;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
@@ -8,10 +8,8 @@ import com.amazonaws.services.logs.AWSLogs;
 import com.amazonaws.services.logs.AWSLogsClient;
 import com.amazonaws.services.logs.model.InputLogEvent;
 import com.amazonaws.services.logs.model.InvalidSequenceTokenException;
-import com.amazonaws.services.logs.model.OperationAbortedException;
 import com.amazonaws.services.logs.model.PutLogEventsRequest;
 import com.amazonaws.services.logs.model.PutLogEventsResult;
-import com.amazonaws.services.logs.model.ServiceUnavailableException;
 import com.boxfuse.cloudwatchlogs.CloudwatchLogsConfig;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -22,6 +20,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -141,34 +140,37 @@ public class CloudwatchLogsLogEventPutter implements Runnable {
                     return o1.getTimestamp().compareTo(o2.getTimestamp());
                 }
             });
-            boolean retry;
-            do {
-                retry = false;
-                if (!enabled && config.isStdoutFallback()) {
-                    for (InputLogEvent event : eventBatch) {
-                        System.out.println(new SimpleDateFormat("YYYY-MM-dd HH:mm:ss.SSS").format(event.getTimestamp()) + " " + logGroupName + " " + app + " " + event.getMessage());
-                    }
-                } else {
+            if (!enabled && config.isStdoutFallback()) {
+                for (InputLogEvent event : eventBatch) {
+                    System.out.println(new SimpleDateFormat("YYYY-MM-dd HH:mm:ss.SSS").format(event.getTimestamp())
+                            + " " + logGroupName + " " + app + " " + event.getMessage());
+                }
+            } else {
+                int retries = 15;
+                do {
                     PutLogEventsRequest request =
                             new PutLogEventsRequest(logGroupName, app, eventBatch).withSequenceToken(nextSequenceToken);
                     try {
                         PutLogEventsResult result = logsClient.putLogEvents(request);
                         nextSequenceToken = result.getNextSequenceToken();
+                        break;
                     } catch (InvalidSequenceTokenException e) {
                         nextSequenceToken = e.getExpectedSequenceToken();
-                        retry = true;
-                    } catch (ServiceUnavailableException | OperationAbortedException e) {
+                    } catch (SdkClientException e) {
                         try {
                             Thread.sleep(1000);
                         } catch (InterruptedException e1) {
                             // Ignore
                         }
-                        retry = true;
-                    } catch (AmazonServiceException e) {
-                        System.out.println("Unable to send logs to AWS CloudWatch Logs (" + e.getMessage() + "). Dropping log events batch ...");
+                        if (--retries == 0) {
+                            System.out.println(
+                                    new SimpleDateFormat("YYYY-MM-dd HH:mm:ss.SSS").format(new Date())
+                                            + "Unable to send logs to AWS CloudWatch Logs (" + e.getMessage()
+                                            + "). Dropping log events batch ...");
+                        }
                     }
-                }
-            } while (retry);
+                } while (retries > 0);
+            }
             eventBatch = new ArrayList<>();
             batchSize = 0;
             lastFlush = System.nanoTime();

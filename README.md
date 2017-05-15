@@ -244,6 +244,10 @@ The log events are shipped asynchronously on a separate background thread, leavi
 
 ## Version History
 
+### 1.1.2.30 (2017-05-15)
+
+- Fixed: Better handling of temporary network connectivity loss 
+ 
 ### 1.1.1.29 (2017-03-14)
 
 - Fixed: Exception name is now part of the message along with the stacktrace 
