@@ -99,7 +99,7 @@ public class CloudwatchLogsLogEventPutter implements Runnable {
                 try {
                     eventJson = toJson(eventMap);
                 } catch (JsonProcessingException e) {
-                    System.out.println("Unable to serialize log event: " + eventMap);
+                    printWithTimestamp(new Date(), "Unable to serialize log event: " + eventMap);
                     continue;
                 }
 
@@ -142,8 +142,7 @@ public class CloudwatchLogsLogEventPutter implements Runnable {
             });
             if (!enabled && config.isStdoutFallback()) {
                 for (InputLogEvent event : eventBatch) {
-                    System.out.println(new SimpleDateFormat("YYYY-MM-dd HH:mm:ss.SSS").format(event.getTimestamp())
-                            + " " + logGroupName + " " + app + " " + event.getMessage());
+                    printWithTimestamp(new Date(event.getTimestamp()), logGroupName + " " + app + " " + event.getMessage());
                 }
             } else {
                 int retries = 15;
@@ -163,10 +162,8 @@ public class CloudwatchLogsLogEventPutter implements Runnable {
                             // Ignore
                         }
                         if (--retries == 0) {
-                            System.out.println(
-                                    new SimpleDateFormat("YYYY-MM-dd HH:mm:ss.SSS").format(new Date())
-                                            + " Unable to send logs to AWS CloudWatch Logs (" + e.getMessage()
-                                            + "). Dropping log events batch ...");
+                            printWithTimestamp(new Date(), "Unable to send logs to AWS CloudWatch Logs ("
+                                    + e.getMessage() + "). Dropping log events batch ...");
                         }
                     }
                 } while (retries > 0);
@@ -186,6 +183,10 @@ public class CloudwatchLogsLogEventPutter implements Runnable {
             }
         }
         return objectMapper.writeValueAsString(nonNullMap);
+    }
+
+    private void printWithTimestamp(Date date, String str) {
+        System.out.println(new SimpleDateFormat("YYYY-MM-dd HH:mm:ss.SSS").format(date) + " " + str);
     }
 
     public void terminate() {
