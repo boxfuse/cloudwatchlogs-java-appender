@@ -29,7 +29,7 @@ import java.util.concurrent.BlockingQueue;
 public class CloudwatchLogsLogEventPutter implements Runnable {
     private static final int MAX_FLUSH_DELAY = 500 * 1000 * 1000;
     private static final int MAX_BATCH_COUNT = 10000;
-    private static final int MAX_BATCH_SIZE = 1 << 20;
+    private static final int MAX_BATCH_SIZE = 1000000;
 
     private final CloudwatchLogsConfig config;
     private final BlockingQueue<CloudwatchLogsLogEvent> eventQueue;
@@ -165,7 +165,7 @@ public class CloudwatchLogsLogEventPutter implements Runnable {
                         if (--retries == 0) {
                             System.out.println(
                                     new SimpleDateFormat("YYYY-MM-dd HH:mm:ss.SSS").format(new Date())
-                                            + "Unable to send logs to AWS CloudWatch Logs (" + e.getMessage()
+                                            + " Unable to send logs to AWS CloudWatch Logs (" + e.getMessage()
                                             + "). Dropping log events batch ...");
                         }
                     }

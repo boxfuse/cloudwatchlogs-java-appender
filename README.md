@@ -244,6 +244,10 @@ The log events are shipped asynchronously on a separate background thread, leavi
 
 ## Version History
 
+### 1.1.3.31 (2017-05-15)
+
+- Fixed: Reduced maximum batch size to 1,000,000 bytes to avoid occasional batch size exceeded errors 
+
 ### 1.1.2.30 (2017-05-15)
 
 - Fixed: Better handling of temporary network connectivity loss 
