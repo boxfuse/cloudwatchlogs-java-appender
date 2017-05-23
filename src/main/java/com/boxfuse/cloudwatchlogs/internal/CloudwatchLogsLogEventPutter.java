@@ -25,11 +25,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class CloudwatchLogsLogEventPutter implements Runnable {
     private static final int MAX_FLUSH_DELAY = 500 * 1000 * 1000;
     private static final int MAX_BATCH_COUNT = 10000;
     private static final int MAX_BATCH_SIZE = 1000000;
+
+    private static final String AWS_REGION = System.getenv("AWS_REGION");
 
     private final CloudwatchLogsConfig config;
     private final BlockingQueue<CloudwatchLogsLogEvent> eventQueue;
@@ -43,26 +46,48 @@ public class CloudwatchLogsLogEventPutter implements Runnable {
     private long lastFlush;
     private List<InputLogEvent> eventBatch;
     private String nextSequenceToken;
+    private final AtomicLong processedCount = new AtomicLong(0);
 
-    public CloudwatchLogsLogEventPutter(CloudwatchLogsConfig config, BlockingQueue<CloudwatchLogsLogEvent> eventQueue) {
+
+    public static CloudwatchLogsLogEventPutter create(CloudwatchLogsConfig config, BlockingQueue<CloudwatchLogsLogEvent> eventQueue) {
+        return new CloudwatchLogsLogEventPutter(config, eventQueue, createLogsClient(config),
+                AWS_REGION != null || config.getEndpoint() != null);
+    }
+
+    /**
+     * For internal use only. This contructor lets us switch the AWSLogs implementation for testing.
+     */
+    public CloudwatchLogsLogEventPutter(CloudwatchLogsConfig config, BlockingQueue<CloudwatchLogsLogEvent> eventQueue,
+                                        AWSLogs awsLogs, boolean enabled) {
         this.config = config;
         logGroupName = "boxfuse/" + config.getEnv();
         String image = config.getImage();
         app = image.substring(0, image.indexOf(":"));
         this.eventQueue = eventQueue;
+        this.enabled = enabled;
+        logsClient = awsLogs;
+    }
 
-        String awsRegion = System.getenv("AWS_REGION");
-        enabled = awsRegion != null || config.getEndpoint() != null;
+    private static AWSLogs createLogsClient(CloudwatchLogsConfig config) {
+        AWSLogs awsLogsClient;
         if (config.getEndpoint() == null) {
-            logsClient = new AWSLogsClient();
-            if (awsRegion != null) {
-                logsClient.setRegion(Region.getRegion(Regions.fromName(awsRegion)));
+            awsLogsClient = new AWSLogsClient();
+            if (AWS_REGION != null) {
+                awsLogsClient.setRegion(Region.getRegion(Regions.fromName(AWS_REGION)));
             }
         } else {
             // Non-AWS mock endpoint
-            logsClient = new AWSLogsClient(new AnonymousAWSCredentials());
-            logsClient.setEndpoint(config.getEndpoint());
+            awsLogsClient = new AWSLogsClient(new AnonymousAWSCredentials());
+            awsLogsClient.setEndpoint(config.getEndpoint());
         }
+        return awsLogsClient;
+    }
+
+    /**
+     * @return The number of log events that have been processed by this putter.
+     */
+    public long getProcessedCount() {
+        return processedCount.get();
     }
 
     @Override
@@ -151,6 +176,7 @@ public class CloudwatchLogsLogEventPutter implements Runnable {
                             new PutLogEventsRequest(logGroupName, app, eventBatch).withSequenceToken(nextSequenceToken);
                     try {
                         PutLogEventsResult result = logsClient.putLogEvents(request);
+                        processedCount.addAndGet(request.getLogEvents().size());
                         nextSequenceToken = result.getNextSequenceToken();
                         break;
                     } catch (InvalidSequenceTokenException e) {

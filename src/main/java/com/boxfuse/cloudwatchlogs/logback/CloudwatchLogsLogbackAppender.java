@@ -14,15 +14,17 @@ import org.slf4j.Marker;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * LogBack appender for Boxfuse's AWS CloudWatch Logs integration.
  */
 public class CloudwatchLogsLogbackAppender extends AppenderBase<ILoggingEvent> {
-    private CloudwatchLogsConfig config = new CloudwatchLogsConfig();
-    private BlockingQueue<CloudwatchLogsLogEvent> eventQueue;
-    private CloudwatchLogsLogEventPutter putter;
-    private long discardedCount;
+    CloudwatchLogsConfig config = new CloudwatchLogsConfig();
+    BlockingQueue<CloudwatchLogsLogEvent> eventQueue;
+    CloudwatchLogsLogEventPutter putter;
+    private AtomicLong processedCount;
+    private AtomicLong discardedCount;
 
     /**
      * @return The config of the appender. This instance can be modified to override defaults.
@@ -42,8 +44,14 @@ public class CloudwatchLogsLogbackAppender extends AppenderBase<ILoggingEvent> {
     public void start() {
         super.start();
         eventQueue = new LinkedBlockingQueue<>(config.getMaxEventQueueSize());
-        putter = new CloudwatchLogsLogEventPutter(config, eventQueue);
+        putter = createCloudwatchLogsLogEventPutter();
+        processedCount = new AtomicLong(0);
+        discardedCount = new AtomicLong(0);
         new Thread(putter).start();
+    }
+
+    CloudwatchLogsLogEventPutter createCloudwatchLogsLogEventPutter() {
+        return CloudwatchLogsLogEventPutter.create(config, eventQueue);
     }
 
     @Override
@@ -53,12 +61,19 @@ public class CloudwatchLogsLogbackAppender extends AppenderBase<ILoggingEvent> {
     }
 
     /**
+     * @return The number of log events that have been processed by this appender since it started.
+     */
+    public long getProcessedCount() {
+        return processedCount.get();
+    }
+
+    /**
      * @return The number of log events that had to be discarded because the event queue was full.
      * If this number is non zero without having been affected by AWS CloudWatch Logs availability issues,
      * you should consider increasing maxEventQueueSize in the config to allow more log events to be buffer before having to drop them.
      */
     public long getDiscardedCount() {
-        return discardedCount;
+        return discardedCount.get();
     }
 
     @Override
@@ -86,8 +101,9 @@ public class CloudwatchLogsLogbackAppender extends AppenderBase<ILoggingEvent> {
         while (!eventQueue.offer(logEvent)) {
             // Discard old logging messages while queue is full.
             eventQueue.poll();
-            discardedCount++;
+            discardedCount.incrementAndGet();
         }
+        processedCount.incrementAndGet();
     }
 
     private String dump(IThrowableProxy throwableProxy) {

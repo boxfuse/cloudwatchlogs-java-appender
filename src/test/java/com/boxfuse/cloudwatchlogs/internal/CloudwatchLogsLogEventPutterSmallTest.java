@@ -20,7 +20,7 @@ public class CloudwatchLogsLogEventPutterSmallTest {
         in.put("def", null);
         in.put("ghi", 456);
 
-        String json = new CloudwatchLogsLogEventPutter(new CloudwatchLogsConfig(), new LinkedBlockingQueue<CloudwatchLogsLogEvent>()).toJson(in);
+        String json = CloudwatchLogsLogEventPutter.create(new CloudwatchLogsConfig(), new LinkedBlockingQueue<CloudwatchLogsLogEvent>()).toJson(in);
         assertThat(json, containsString("abc"));
         assertThat(json, containsString("123"));
         assertThat(json, not(containsString("def")));
