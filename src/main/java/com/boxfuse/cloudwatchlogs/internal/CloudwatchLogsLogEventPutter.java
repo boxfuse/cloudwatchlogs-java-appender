@@ -48,14 +48,20 @@ public class CloudwatchLogsLogEventPutter implements Runnable {
     private String nextSequenceToken;
     private final AtomicLong processedCount = new AtomicLong(0);
 
-
+    /**
+     * Creates a new EventPutter for the current AWS region.
+     *
+     * @param config     The config to use.
+     * @param eventQueue The event queue to consume from.
+     * @return The new EventPutter.
+     */
     public static CloudwatchLogsLogEventPutter create(CloudwatchLogsConfig config, BlockingQueue<CloudwatchLogsLogEvent> eventQueue) {
         return new CloudwatchLogsLogEventPutter(config, eventQueue, createLogsClient(config),
                 AWS_REGION != null || config.getEndpoint() != null);
     }
 
     /**
-     * For internal use only. This contructor lets us switch the AWSLogs implementation for testing.
+     * For internal use only. This constructor lets us switch the AWSLogs implementation for testing.
      */
     public CloudwatchLogsLogEventPutter(CloudwatchLogsConfig config, BlockingQueue<CloudwatchLogsLogEvent> eventQueue,
                                         AWSLogs awsLogs, boolean enabled) {
