@@ -25,7 +25,7 @@ public class CloudwatchLogsLogbackAppenderMediumTest {
     private static final int NUM_THREADS = 10;
     private static final int EVENTS_PER_THREAD = 100000;
 
-    @Test(timeout = 10000)
+    @Test(timeout = 15000)
     public void concurrencyAndThroughput() throws InterruptedException {
         final AWSLogs awsLogs = mock(AWSLogs.class);
         when(awsLogs.putLogEvents(any(PutLogEventsRequest.class))).thenReturn(new PutLogEventsResult());
