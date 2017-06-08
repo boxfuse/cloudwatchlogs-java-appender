@@ -247,7 +247,7 @@ The log events are shipped asynchronously on a separate background thread, leavi
 ### 1.1.4.40 (2017-06-08)
 
 - Fixed: Flushing under high load caused maximum batch size to be exceeded 
-- Fixed: Maximum batch size restored 1,048,576 bytes 
+- Fixed: Maximum batch size restored to 1,048,576 bytes 
 - Added warning when an individual message exceeds the maximum allowed batch size
 
 ### 1.1.3.33 (2017-05-16)
