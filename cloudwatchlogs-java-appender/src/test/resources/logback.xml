@@ -2,7 +2,6 @@
     <appender name="Boxfuse-CloudwatchLogs" class="com.boxfuse.cloudwatchlogs.logback.CloudwatchLogsLogbackAppender">
         <config>
             <stdoutFallback>true</stdoutFallback>
-            <region>eu-central-1</region>
         </config>
     </appender>
 

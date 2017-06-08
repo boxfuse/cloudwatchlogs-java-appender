@@ -55,8 +55,9 @@ public class CloudwatchLogsLogEventPutter implements Runnable {
      * @return The new EventPutter.
      */
     public static CloudwatchLogsLogEventPutter create(CloudwatchLogsConfig config, BlockingQueue<CloudwatchLogsLogEvent> eventQueue) {
-        return new CloudwatchLogsLogEventPutter(config, eventQueue, createLogsClient(config),
-                config.getRegion() != null || config.getEndpoint() != null);
+        boolean enabled = config.getRegion() != null || config.getEndpoint() != null;
+        AWSLogs logsClient = enabled ? createLogsClient(config) : null;
+        return new CloudwatchLogsLogEventPutter(config, eventQueue, logsClient, enabled);
     }
 
     /**
@@ -74,17 +75,11 @@ public class CloudwatchLogsLogEventPutter implements Runnable {
     }
 
     private static AWSLogs createLogsClient(CloudwatchLogsConfig config) {
-        AWSLogsClientBuilder builder = AWSLogsClientBuilder.standard();
-        if (config.getEndpoint() == null) {
-            if (config.getRegion() != null) {
-                builder.setRegion(config.getRegion());
-            }
-        } else {
+        AWSLogsClientBuilder builder = AWSLogsClientBuilder.standard().withRegion(config.getRegion());
+        if (config.getEndpoint() != null) {
             // Non-AWS mock endpoint
-            String dummyRegion = "eu-central-1";
             builder.setCredentials(new AWSStaticCredentialsProvider(new AnonymousAWSCredentials()));
-            builder.setRegion(dummyRegion);
-            builder.setEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(config.getEndpoint(), dummyRegion));
+            builder.setEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(config.getEndpoint(), config.getRegion()));
         }
         return builder.build();
     }
