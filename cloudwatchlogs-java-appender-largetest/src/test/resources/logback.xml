@@ -1,0 +1,20 @@
+<configuration>
+    <appender name="Boxfuse-CloudwatchLogs" class="com.boxfuse.cloudwatchlogs.logback.CloudwatchLogsLogbackAppender">
+        <!-- Optional config parameters -->
+        <config>
+            <!-- Whether to fall back to stdout instead of disabling the appender when running outside of a Boxfuse instance. Default: false -->
+            <stdoutFallback>false</stdoutFallback>
+
+            <!-- The maximum size of the async log event queue. Default: 1000000.
+                 Increase to avoid dropping log events at very high throughput.
+                 Decrease to reduce maximum memory usage at the risk if the occasional log event drop when it gets full. -->
+            <maxEventQueueSize>1000000</maxEventQueueSize>
+            <region>eu-central-1</region>
+            <debug>true</debug>
+        </config>
+    </appender>
+
+    <root level="debug">
+        <appender-ref ref="Boxfuse-CloudwatchLogs" />
+    </root>
+</configuration>

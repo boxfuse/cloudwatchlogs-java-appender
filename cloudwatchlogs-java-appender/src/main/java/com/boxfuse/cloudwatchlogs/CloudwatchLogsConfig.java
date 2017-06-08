@@ -18,10 +18,12 @@ public class CloudwatchLogsConfig {
 
     private int maxEventQueueSize = DEFAULT_MAX_EVENT_QUEUE_SIZE;
 
+    private boolean debug;
     private String endpoint = System.getenv("BOXFUSE_CLOUDWATCHLOGS_ENDPOINT");
     private String env = System.getenv("BOXFUSE_ENV");
     private String image = System.getenv("BOXFUSE_IMAGE_COORDINATES");
     private String instance = System.getenv("BOXFUSE_INSTANCE_ID");
+    private String region = System.getenv("AWS_REGION");
 
     private boolean stdoutFallback;
 
@@ -135,6 +137,37 @@ public class CloudwatchLogsConfig {
             throw new IllegalArgumentException("instance may not be null");
         }
         this.instance = instance;
+    }
+
+    /**
+     * @return The AWS region to use.
+     */
+    public String getRegion() {
+        return region;
+    }
+
+    /**
+     * @param region The AWS region to use.
+     */
+    public void setRegion(String region) {
+        if (region == null) {
+            throw new IllegalArgumentException("region may not be null");
+        }
+        this.region = region;
+    }
+
+    /**
+     * @return Whether internal debug output should produced. Only useful for diagnosing issues within the appender itself.
+     */
+    public boolean isDebug() {
+        return debug;
+    }
+
+    /**
+     * @param debug Whether internal debug output should produced. Only useful for diagnosing issues within the appender itself.
+     */
+    public void setDebug(boolean debug) {
+        this.debug = debug;
     }
 
     private static String getHostName() {

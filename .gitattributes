@@ -7,10 +7,8 @@
 *.gif binary
 *.png binary
 *.vdi binary
-busybox binary
 *.jar binary
 *.jks binary
 *.jck binary
 *.odg binary
 *.pdf binary
-cacerts binary

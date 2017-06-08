@@ -46,13 +46,18 @@ public class CloudwatchLogsLog4J2Appender extends AbstractAppender {
     public static CloudwatchLogsLog4J2Appender createAppender(
             @PluginAttribute(value = "name", defaultString = APPENDER_NAME) String name,
             @PluginElement("Filter") final Filter filter,
+            @PluginAttribute(value = "debug") Boolean debug,
             @PluginAttribute(value = "stdoutFallback") Boolean stdoutFallback,
             @PluginAttribute(value = "endpoint") String endpoint,
             @PluginAttribute(value = "env") String env,
             @PluginAttribute(value = "image") String image,
             @PluginAttribute(value = "instance") String instance,
-            @PluginAttribute(value = "maxEventQueueSize", defaultInt = CloudwatchLogsConfig.DEFAULT_MAX_EVENT_QUEUE_SIZE) Integer maxEventQueueSize) {
+            @PluginAttribute(value = "maxEventQueueSize", defaultInt = CloudwatchLogsConfig.DEFAULT_MAX_EVENT_QUEUE_SIZE) Integer maxEventQueueSize,
+            @PluginAttribute(value = "region") String region) {
         CloudwatchLogsLog4J2Appender appender = new CloudwatchLogsLog4J2Appender(name, filter, null, true);
+        if (debug != null) {
+            appender.getConfig().setStdoutFallback(debug);
+        }
         if (stdoutFallback != null) {
             appender.getConfig().setStdoutFallback(stdoutFallback);
         }
@@ -69,6 +74,9 @@ public class CloudwatchLogsLog4J2Appender extends AbstractAppender {
             appender.getConfig().setInstance(instance);
         }
         appender.getConfig().setMaxEventQueueSize(maxEventQueueSize);
+        if (region != null) {
+            appender.getConfig().setRegion(region);
+        }
         return appender;
     }
 
