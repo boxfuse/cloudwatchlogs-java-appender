@@ -41,7 +41,7 @@ Then add the dependency:
 <dependency>
     <groupId>com.boxfuse.cloudwatchlogs</groupId>
     <artifactId>cloudwatchlogs-java-appender</artifactId>
-    <version>1.1.4.40</version>
+    <version>1.1.5.44</version>
 </dependency>
 ```
 
@@ -62,7 +62,7 @@ Then add the dependency:
 
 ```groovy
 dependencies {
-    compile 'com.boxfuse.cloudwatchlogs:cloudwatchlogs-java-appender:1.1.4.40'
+    compile 'com.boxfuse.cloudwatchlogs:cloudwatchlogs-java-appender:1.1.5.44'
 }
 ```
 
@@ -243,6 +243,11 @@ The log events are shipped asynchronously on a separate background thread, leavi
  you should consider increasing `maxEventQueueSize` in the config to allow more log events to be buffered before having to drop them.
 
 ## Version History
+
+### 1.1.5.44 (2017-06-09)
+
+- Added default for region (eu-central-1) if it cannot be autodetected
+- Prevented creation of AWS CloudWatch Logs client when disabled
 
 ### 1.1.4.40 (2017-06-08)
 
