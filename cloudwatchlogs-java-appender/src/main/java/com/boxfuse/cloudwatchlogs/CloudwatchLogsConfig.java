@@ -37,9 +37,6 @@ public class CloudwatchLogsConfig {
         if (instance == null) {
             instance = getHostName();
         }
-        if (region == null || region.isEmpty()) {
-            region = "eu-central-1";
-        }
     }
 
     /**

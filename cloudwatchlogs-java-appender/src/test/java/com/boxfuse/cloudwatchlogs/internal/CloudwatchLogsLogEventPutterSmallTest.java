@@ -10,6 +10,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.not;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
 public class CloudwatchLogsLogEventPutterSmallTest {
@@ -30,5 +31,12 @@ public class CloudwatchLogsLogEventPutterSmallTest {
         assertThat(json, not(containsString("null")));
         assertThat(json, containsString("ghi"));
         assertThat(json, containsString("456"));
+    }
+
+    @Test
+    public void createLogsClient() {
+        CloudwatchLogsConfig cfg = new CloudwatchLogsConfig();
+        cfg.setEndpoint("http://dummy.local");
+        assertNotNull(CloudwatchLogsLogEventPutter.createLogsClient(cfg));
     }
 }

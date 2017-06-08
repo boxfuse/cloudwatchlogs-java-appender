@@ -3,6 +3,7 @@
     <Appenders>
         <Boxfuse-CloudwatchLogs>
             <stdoutFallback>true</stdoutFallback>
+            <region>eu-central-1</region>
         </Boxfuse-CloudwatchLogs>
     </Appenders>
     <Loggers>

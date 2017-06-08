@@ -74,12 +74,14 @@ public class CloudwatchLogsLogEventPutter implements Runnable {
         logsClient = awsLogs;
     }
 
-    private static AWSLogs createLogsClient(CloudwatchLogsConfig config) {
-        AWSLogsClientBuilder builder = AWSLogsClientBuilder.standard().withRegion(config.getRegion());
+    static AWSLogs createLogsClient(CloudwatchLogsConfig config) {
+        AWSLogsClientBuilder builder = AWSLogsClientBuilder.standard();
         if (config.getEndpoint() != null) {
             // Non-AWS mock endpoint
             builder.setCredentials(new AWSStaticCredentialsProvider(new AnonymousAWSCredentials()));
             builder.setEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(config.getEndpoint(), config.getRegion()));
+        } else {
+            builder.setRegion(config.getRegion());
         }
         return builder.build();
     }
