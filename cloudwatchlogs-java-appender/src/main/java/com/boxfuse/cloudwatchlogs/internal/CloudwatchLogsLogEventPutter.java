@@ -183,7 +183,7 @@ public class CloudwatchLogsLogEventPutter implements Runnable {
                 return o1.getTimestamp().compareTo(o2.getTimestamp());
             }
         });
-        if (!enabled && config.isStdoutFallback()) {
+        if (config.isStdoutFallback()) {
             for (InputLogEvent event : eventBatch) {
                 printWithTimestamp(new Date(event.getTimestamp()), logGroupName + " " + app + " " + event.getMessage());
             }
