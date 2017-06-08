@@ -70,7 +70,7 @@ dependencies {
 
 Besides Logback or Log4J2 this appender also requires the following dependency (declared as a transitive dependency in the `pom.xml`):
 
-`com.amazonaws:aws-java-sdk-logs:1.1.51` (or newer)
+`com.amazonaws:aws-java-sdk-logs:1.1.143` (or newer)
 
 ## Usage
 
