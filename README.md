@@ -41,7 +41,7 @@ Then add the dependency:
 <dependency>
     <groupId>com.boxfuse.cloudwatchlogs</groupId>
     <artifactId>cloudwatchlogs-java-appender</artifactId>
-    <version>1.1.1.29</version>
+    <version>1.1.4.40</version>
 </dependency>
 ```
 
@@ -62,7 +62,7 @@ Then add the dependency:
 
 ```groovy
 dependencies {
-    compile 'com.boxfuse.cloudwatchlogs:cloudwatchlogs-java-appender:1.1.1.29'
+    compile 'com.boxfuse.cloudwatchlogs:cloudwatchlogs-java-appender:1.1.4.40'
 }
 ```
 
@@ -243,6 +243,12 @@ The log events are shipped asynchronously on a separate background thread, leavi
  you should consider increasing `maxEventQueueSize` in the config to allow more log events to be buffered before having to drop them.
 
 ## Version History
+
+### 1.1.4.40 (2017-06-08)
+
+- Fixed: Flushing under high load caused maximum batch size to be exceeded 
+- Fixed: Maximum batch size restored 1,048,576 bytes 
+- Added warning when an individual message exceeds the maximum allowed batch size
 
 ### 1.1.3.33 (2017-05-16)
 
