@@ -81,8 +81,10 @@ public class CloudwatchLogsLogEventPutter implements Runnable {
             }
         } else {
             // Non-AWS mock endpoint
+            String dummyRegion = "eu-central-1";
             builder.setCredentials(new AWSStaticCredentialsProvider(new AnonymousAWSCredentials()));
-            builder.setEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(config.getEndpoint(), "eu-central-1"));
+            builder.setRegion(dummyRegion);
+            builder.setEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(config.getEndpoint(), dummyRegion));
         }
         return builder.build();
     }
