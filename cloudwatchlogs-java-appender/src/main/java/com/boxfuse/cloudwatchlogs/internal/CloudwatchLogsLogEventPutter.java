@@ -6,6 +6,7 @@ import com.amazonaws.auth.AnonymousAWSCredentials;
 import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.logs.AWSLogs;
 import com.amazonaws.services.logs.AWSLogsClientBuilder;
+import com.amazonaws.services.logs.model.DataAlreadyAcceptedException;
 import com.amazonaws.services.logs.model.InputLogEvent;
 import com.amazonaws.services.logs.model.InvalidSequenceTokenException;
 import com.amazonaws.services.logs.model.PutLogEventsRequest;
@@ -203,6 +204,8 @@ public class CloudwatchLogsLogEventPutter implements Runnable {
                     processedCount.addAndGet(request.getLogEvents().size());
                     nextSequenceToken = result.getNextSequenceToken();
                     break;
+                } catch (DataAlreadyAcceptedException e) {
+                    nextSequenceToken = e.getExpectedSequenceToken();
                 } catch (InvalidSequenceTokenException e) {
                     nextSequenceToken = e.getExpectedSequenceToken();
                 } catch (ResourceNotFoundException e) {

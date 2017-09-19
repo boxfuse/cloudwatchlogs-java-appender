@@ -244,6 +244,10 @@ The log events are shipped asynchronously on a separate background thread, leavi
 
 ## Version History
 
+### 1.1.6.49 (2017-09-19)
+
+- Fixed: Handling of DataAlreadyAcceptedException
+
 ### 1.1.5.46 (2017-06-09)
 
 - Prevent creation of AWS CloudWatch Logs client when disabled
