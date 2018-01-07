@@ -112,6 +112,14 @@ public class CloudwatchLogsLog4J2Appender extends AbstractAppender {
         return discardedCount;
     }
 
+    /**
+     * @return If the background thread responsible to send events to AWS is still running. It normally should be being able to check
+     * is useful for monitoring.
+     */
+    public boolean isPutterRunning() {
+        return putter.isRunning();
+    }
+    
     @Override
     public void append(LogEvent event) {
         String message = event.getMessage().getFormattedMessage();
