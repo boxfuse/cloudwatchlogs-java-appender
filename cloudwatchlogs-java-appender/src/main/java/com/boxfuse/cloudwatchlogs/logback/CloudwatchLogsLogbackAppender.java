@@ -47,7 +47,7 @@ public class CloudwatchLogsLogbackAppender extends AppenderBase<ILoggingEvent> {
         putter = createCloudwatchLogsLogEventPutter();
         processedCount = new AtomicLong(0);
         discardedCount = new AtomicLong(0);
-        new Thread(putter).start();
+        new Thread(putter, CloudwatchLogsLogEventPutter.class.getSimpleName()).start();
     }
 
     CloudwatchLogsLogEventPutter createCloudwatchLogsLogEventPutter() {
