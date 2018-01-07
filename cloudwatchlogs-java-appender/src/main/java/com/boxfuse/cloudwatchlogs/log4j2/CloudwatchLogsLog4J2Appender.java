@@ -92,7 +92,9 @@ public class CloudwatchLogsLog4J2Appender extends AbstractAppender {
         super.start();
         eventQueue = new LinkedBlockingQueue<>(config.getMaxEventQueueSize());
         putter = CloudwatchLogsLogEventPutter.create(config, eventQueue);
-        new Thread(putter, CloudwatchLogsLogEventPutter.class.getSimpleName()).start();
+        Thread t = new Thread(putter, CloudwatchLogsLogEventPutter.class.getSimpleName());
+        t.setDaemon(true);
+        t.start();
     }
 
     @Override
