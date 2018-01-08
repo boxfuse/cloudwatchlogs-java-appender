@@ -47,7 +47,9 @@ public class CloudwatchLogsLogbackAppender extends AppenderBase<ILoggingEvent> {
         putter = createCloudwatchLogsLogEventPutter();
         processedCount = new AtomicLong(0);
         discardedCount = new AtomicLong(0);
-        new Thread(putter).start();
+        Thread t = new Thread(putter, CloudwatchLogsLogEventPutter.class.getSimpleName());
+        t.setDaemon(true);
+        t.start();
     }
 
     CloudwatchLogsLogEventPutter createCloudwatchLogsLogEventPutter() {
@@ -76,15 +78,22 @@ public class CloudwatchLogsLogbackAppender extends AppenderBase<ILoggingEvent> {
         return discardedCount.get();
     }
 
+    /**
+     * @return Whether the background thread responsible for sending events to AWS is still running.
+     */
+    public boolean isRunning() {
+        return putter.isRunning();
+    }
+
     @Override
     protected void append(ILoggingEvent event) {
-        String message = event.getFormattedMessage();
+        StringBuilder message = new StringBuilder(event.getFormattedMessage());
         IThrowableProxy throwableProxy = event.getThrowableProxy();
         while (throwableProxy != null) {
-            message += "\n" + dump(throwableProxy);
+            message.append("\n").append(dump(throwableProxy));
             throwableProxy = throwableProxy.getCause();
             if (throwableProxy != null) {
-                message += "\nCaused by:";
+                message.append("\nCaused by:");
             }
         }
 
@@ -97,7 +106,7 @@ public class CloudwatchLogsLogbackAppender extends AppenderBase<ILoggingEvent> {
         Marker marker = event.getMarker();
         String eventId = marker == null ? null : marker.getName();
 
-        CloudwatchLogsLogEvent logEvent = new CloudwatchLogsLogEvent(event.getLevel().toString(), event.getLoggerName(), eventId, message, event.getTimeStamp(), event.getThreadName(), account, action, user, session, request);
+        CloudwatchLogsLogEvent logEvent = new CloudwatchLogsLogEvent(event.getLevel().toString(), event.getLoggerName(), eventId, message.toString(), event.getTimeStamp(), event.getThreadName(), account, action, user, session, request);
         while (!eventQueue.offer(logEvent)) {
             // Discard old logging messages while queue is full.
             eventQueue.poll();

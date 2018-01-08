@@ -40,14 +40,14 @@ public class CloudwatchLogsLogEventPutter implements Runnable {
     private final AWSLogs logsClient;
     private final ObjectMapper objectMapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
     private final boolean enabled;
+    private final String app;
+    private final String logGroupName;
     private volatile boolean running;
-    private String app;
-    private String logGroupName;
+    private final AtomicLong processedCount = new AtomicLong(0);
     private int batchSize;
     private long lastFlush;
     private List<InputLogEvent> eventBatch;
     private String nextSequenceToken;
-    private final AtomicLong processedCount = new AtomicLong(0);
 
     /**
      * Creates a new EventPutter for the current AWS region.
@@ -257,6 +257,10 @@ public class CloudwatchLogsLogEventPutter implements Runnable {
 
     private void printWithTimestamp(Date date, String str) {
         System.out.println(new SimpleDateFormat("YYYY-MM-dd HH:mm:ss.SSS").format(date) + " " + str);
+    }
+
+    public boolean isRunning() {
+        return running;
     }
 
     public void terminate() {
