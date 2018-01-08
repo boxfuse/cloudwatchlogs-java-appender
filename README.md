@@ -92,6 +92,11 @@ Add the appender to your `logback.xml` file at the root of your classpath. In a 
                  Increase to avoid dropping log events at very high throughput.
                  Decrease to reduce maximum memory usage at the risk if the occasional log event drop when it gets full. -->
             <maxEventQueueSize>1000000</maxEventQueueSize>
+            
+            <!-- The AWS CloudWatch Logs LogGroup to use. This is determined automatically within Boxfuse environments. -->
+            <!--
+            <logGroup>my-custom-log-group</logGroup>
+            -->
         </config>    
     </appender>
 
@@ -119,6 +124,11 @@ Add the appender to your `log4j2.xml` file at the root of your classpath. In a M
                  Increase to avoid dropping log events at very high throughput.
                  Decrease to reduce maximum memory usage at the risk if the occasional log event drop when it gets full. -->
             <maxEventQueueSize>1000000</maxEventQueueSize>
+            
+            <!-- The AWS CloudWatch Logs LogGroup to use. This is determined automatically within Boxfuse environments. -->
+            <!--
+            <logGroup>my-custom-log-group</logGroup>
+            -->
         </Boxfuse-CloudwatchLogs>
     </Appenders>
     <Loggers>
@@ -286,7 +296,7 @@ The log events are shipped asynchronously on a separate background thread, leavi
  
 ## License
 
-Copyright (C) 2017 Boxfuse GmbH
+Copyright (C) 2018 Boxfuse GmbH
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
 

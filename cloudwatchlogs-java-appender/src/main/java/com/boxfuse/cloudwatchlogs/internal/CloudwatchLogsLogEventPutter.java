@@ -68,7 +68,7 @@ public class CloudwatchLogsLogEventPutter implements Runnable {
     public CloudwatchLogsLogEventPutter(CloudwatchLogsConfig config, BlockingQueue<CloudwatchLogsLogEvent> eventQueue,
                                         AWSLogs awsLogs, boolean enabled) {
         this.config = config;
-        logGroupName = "boxfuse/" + config.getEnv();
+        logGroupName = config.getLogGroup();
         String image = config.getImage();
         app = image.substring(0, image.indexOf(":"));
         this.eventQueue = eventQueue;

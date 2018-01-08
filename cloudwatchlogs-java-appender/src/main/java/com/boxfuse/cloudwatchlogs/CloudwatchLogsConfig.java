@@ -24,6 +24,7 @@ public class CloudwatchLogsConfig {
     private String image = System.getenv("BOXFUSE_IMAGE_COORDINATES");
     private String instance = System.getenv("BOXFUSE_INSTANCE_ID");
     private String region = System.getenv("AWS_REGION");
+    private String logGroup;
 
     private boolean stdoutFallback;
 
@@ -37,6 +38,7 @@ public class CloudwatchLogsConfig {
         if (instance == null) {
             instance = getHostName();
         }
+        logGroup = "boxfuse/" + env;
     }
 
     /**
@@ -168,6 +170,20 @@ public class CloudwatchLogsConfig {
      */
     public void setDebug(boolean debug) {
         this.debug = debug;
+    }
+
+    /**
+     * @return The AWS CloudWatch Logs LogGroup to use. This is determined automatically within Boxfuse environments.
+     */
+    public String getLogGroup() {
+        return logGroup;
+    }
+
+    /**
+     * @param logGroup The AWS CloudWatch Logs LogGroup to use. This is determined automatically within Boxfuse environments.
+     */
+    public void setLogGroup(String logGroup) {
+        this.logGroup = logGroup;
     }
 
     private static String getHostName() {
