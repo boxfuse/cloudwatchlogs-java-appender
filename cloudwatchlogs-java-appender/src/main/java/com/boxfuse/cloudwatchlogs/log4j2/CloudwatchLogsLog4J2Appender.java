@@ -113,22 +113,21 @@ public class CloudwatchLogsLog4J2Appender extends AbstractAppender {
     }
 
     /**
-     * @return If the background thread responsible to send events to AWS is still running. It normally should be being able to check
-     * is useful for monitoring.
+     * @return Whether the background thread responsible for sending events to AWS is still running.
      */
-    public boolean isPutterRunning() {
+    public boolean isRunning() {
         return putter.isRunning();
     }
     
     @Override
     public void append(LogEvent event) {
-        String message = event.getMessage().getFormattedMessage();
+        StringBuilder message = new StringBuilder(event.getMessage().getFormattedMessage());
         Throwable thrown = event.getThrown();
         while (thrown != null) {
-            message += "\n" + dump(thrown);
+            message.append("\n").append(dump(thrown));
             thrown = thrown.getCause();
             if (thrown != null) {
-                message += "\nCaused by:";
+                message.append("\nCaused by:");
             }
         }
 
@@ -141,7 +140,9 @@ public class CloudwatchLogsLog4J2Appender extends AbstractAppender {
         Marker marker = event.getMarker();
         String eventId = marker == null ? null : marker.getName();
 
-        CloudwatchLogsLogEvent logEvent = new CloudwatchLogsLogEvent(event.getLevel().toString(), event.getLoggerName(), eventId, message, event.getTimeMillis(), event.getThreadName(), account, action, user, session, request);
+        CloudwatchLogsLogEvent logEvent = new CloudwatchLogsLogEvent(event.getLevel().toString(), event.getLoggerName(),
+                eventId, message.toString(), event.getTimeMillis(), event.getThreadName(), account, action, user,
+                session, request);
         while (!eventQueue.offer(logEvent)) {
             eventQueue.poll();
             discardedCount++;
