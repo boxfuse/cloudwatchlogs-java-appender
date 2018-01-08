@@ -111,7 +111,7 @@ public class CloudwatchLogsLogEventPutter implements Runnable {
         while (running) {
             CloudwatchLogsLogEvent event;
             try {
-                if(eventBatch.isEmpty()) {
+                if (eventBatch.isEmpty()) {
                     // no event pending to be sent, just wait forever
                     event = eventQueue.take();
                 } else {
