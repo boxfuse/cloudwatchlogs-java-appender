@@ -245,6 +245,10 @@ public class CloudwatchLogsLogEventPutter implements Runnable {
         System.out.println(new SimpleDateFormat("YYYY-MM-dd HH:mm:ss.SSS").format(date) + " " + str);
     }
 
+    public boolean isRunning() {
+        return running;
+    }
+
     public void terminate() {
         running = false;
     }

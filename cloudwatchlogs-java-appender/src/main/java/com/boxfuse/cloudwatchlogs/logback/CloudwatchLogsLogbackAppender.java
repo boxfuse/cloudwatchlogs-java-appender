@@ -47,7 +47,9 @@ public class CloudwatchLogsLogbackAppender extends AppenderBase<ILoggingEvent> {
         putter = createCloudwatchLogsLogEventPutter();
         processedCount = new AtomicLong(0);
         discardedCount = new AtomicLong(0);
-        new Thread(putter).start();
+        Thread t = new Thread(putter, CloudwatchLogsLogEventPutter.class.getSimpleName());
+        t.setDaemon(true);
+        t.start();
     }
 
     CloudwatchLogsLogEventPutter createCloudwatchLogsLogEventPutter() {
@@ -74,6 +76,14 @@ public class CloudwatchLogsLogbackAppender extends AppenderBase<ILoggingEvent> {
      */
     public long getDiscardedCount() {
         return discardedCount.get();
+    }
+
+    /**
+     * @return If the background thread responsible to send events to AWS is still running. It normally should be being able to check
+     * is useful for monitoring.
+     */
+    public boolean isPutterRunning() {
+        return putter.isRunning();
     }
 
     @Override
