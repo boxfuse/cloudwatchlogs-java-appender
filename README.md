@@ -254,6 +254,12 @@ The log events are shipped asynchronously on a separate background thread, leavi
 
 ## Version History
 
+### 1.1.7.56 (2018-01-08)
+
+- Added thread name
+- Improve polling logic
+- Added optional `logGroup` configuration param
+
 ### 1.1.6.49 (2017-09-19)
 
 - Fixed: Handling of DataAlreadyAcceptedException
