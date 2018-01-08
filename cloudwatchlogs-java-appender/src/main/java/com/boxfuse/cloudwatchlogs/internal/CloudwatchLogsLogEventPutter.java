@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class CloudwatchLogsLogEventPutter implements Runnable {
@@ -41,8 +42,8 @@ public class CloudwatchLogsLogEventPutter implements Runnable {
     private final boolean enabled;
     private final String app;
     private final String logGroupName;
+    private volatile boolean running;
     private final AtomicLong processedCount = new AtomicLong(0);
-    private boolean running;
     private int batchSize;
     private long lastFlush;
     private List<InputLogEvent> eventBatch;
@@ -108,7 +109,20 @@ public class CloudwatchLogsLogEventPutter implements Runnable {
         lastFlush = System.nanoTime();
 
         while (running) {
-            CloudwatchLogsLogEvent event = eventQueue.poll();
+            CloudwatchLogsLogEvent event;
+            try {
+                if(eventBatch.isEmpty()) {
+                    // no event pending to be sent, just wait forever
+                    event = eventQueue.take();
+                } else {
+                    // events pending, wait until the MAX_FLUSH_DELAY
+                    event = eventQueue.poll(MAX_FLUSH_DELAY - (System.nanoTime() - lastFlush), TimeUnit.NANOSECONDS);
+                }
+            } catch (InterruptedException e) {
+                // Get out
+                running = false;
+                break;
+            }
             if (event != null) {
                 Map<String, Object> eventMap = new TreeMap<>();
                 eventMap.put("instance", config.getInstance());
@@ -161,12 +175,12 @@ public class CloudwatchLogsLogEventPutter implements Runnable {
                 if (!eventBatch.isEmpty() && isTimeToFlush()) {
                     flush();
                 }
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException e) {
-                    running = false;
-                }
             }
+        }
+
+        // Flush whatever is pending to be sent
+        if (!eventBatch.isEmpty()) {
+            flush();
         }
     }
 
