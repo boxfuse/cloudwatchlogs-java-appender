@@ -3,6 +3,8 @@
         <config>
             <stdoutFallback>true</stdoutFallback>
             <region>eu-central-1</region>
+            <customMdcKey>my-custom-key</customMdcKey>
+            <customMdcKey>my-other-key</customMdcKey>
         </config>
     </appender>
 

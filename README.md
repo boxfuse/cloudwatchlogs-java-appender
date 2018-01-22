@@ -96,6 +96,10 @@ Add the appender to your `logback.xml` file at the root of your classpath. In a 
             <!-- The default maximum delay in milliseconds before forcing a flush of the buffered log events to CloudWatch Logs. Default: 500. -->
             <maxFlushDelay>500</maxFlushDelay>
 
+            <!-- Custom MDC keys to include in the log events along with their values. -->            
+            <customMdcKey>my-custom-key</customMdcKey>
+            <customMdcKey>my-other-key</customMdcKey>
+
             <!-- The AWS CloudWatch Logs LogGroup to use. This is determined automatically within Boxfuse environments. -->
             <!--
             <logGroup>my-custom-log-group</logGroup>
@@ -130,7 +134,11 @@ Add the appender to your `log4j2.xml` file at the root of your classpath. In a M
             
             <!-- The default maximum delay in milliseconds before forcing a flush of the buffered log events to CloudWatch Logs. Default: 500. -->
             <maxFlushDelay>500</maxFlushDelay>
-            
+
+            <!-- Custom MDC (ThreadContext) keys to include in the log events along with their values. -->            
+            <customMdcKey key="my-custom-key"/>
+            <customMdcKey key="my-other-key"/>
+
             <!-- The AWS CloudWatch Logs LogGroup to use. This is determined automatically within Boxfuse environments. -->
             <!--
             <logGroup>my-custom-log-group</logGroup>
@@ -264,6 +272,7 @@ The log events are shipped asynchronously on a separate background thread, leavi
 
 - Improved polling logic under high load
 - Added optional `maxFlushDelay` configuration param
+- Added optional `customMdcKey` configuration param
 
 ### 1.1.7.56 (2018-01-08)
 

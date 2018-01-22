@@ -16,6 +16,9 @@ import org.apache.logging.log4j.core.config.plugins.PluginElement;
 import org.apache.logging.log4j.core.config.plugins.PluginFactory;
 
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -46,6 +49,7 @@ public class CloudwatchLogsLog4J2Appender extends AbstractAppender {
     public static CloudwatchLogsLog4J2Appender createAppender(
             @PluginAttribute(value = "name", defaultString = APPENDER_NAME) String name,
             @PluginElement("Filter") final Filter filter,
+            @PluginElement("customMdcKey") final CustomMdcKeyElement[] customMdcKeys,
             @PluginAttribute("debug") Boolean debug,
             @PluginAttribute("stdoutFallback") Boolean stdoutFallback,
             @PluginAttribute("endpoint") String endpoint,
@@ -82,6 +86,9 @@ public class CloudwatchLogsLog4J2Appender extends AbstractAppender {
         }
         if (logGroup != null) {
             appender.getConfig().setLogGroup(logGroup);
+        }
+        for (CustomMdcKeyElement customMdcKey : customMdcKeys) {
+            appender.getConfig().addCustomMdcKey(customMdcKey.getKey());
         }
         return appender;
     }
@@ -146,9 +153,17 @@ public class CloudwatchLogsLog4J2Appender extends AbstractAppender {
         Marker marker = event.getMarker();
         String eventId = marker == null ? null : marker.getName();
 
+        Map<String, String> customMdcAttributes = new HashMap<>();
+        for (String key : config.getCustomMdcKeys()) {
+            String value = event.getContextData().getValue(key);
+            if (value != null) {
+                customMdcAttributes.put(key, value);
+            }
+        }
+
         CloudwatchLogsLogEvent logEvent = new CloudwatchLogsLogEvent(event.getLevel().toString(), event.getLoggerName(),
                 eventId, message.toString(), event.getTimeMillis(), event.getThreadName(), account, action, user,
-                session, request);
+                session, request, customMdcAttributes);
         while (!eventQueue.offer(logEvent)) {
             eventQueue.poll();
             discardedCount++;

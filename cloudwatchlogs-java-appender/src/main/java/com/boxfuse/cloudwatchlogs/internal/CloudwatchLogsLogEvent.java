@@ -1,5 +1,7 @@
 package com.boxfuse.cloudwatchlogs.internal;
 
+import java.util.Map;
+
 public class CloudwatchLogsLogEvent {
     private final String level;
     private final String logger;
@@ -12,8 +14,11 @@ public class CloudwatchLogsLogEvent {
     private final String user;
     private final String session;
     private final String request;
+    private final Map<String, String> customMdcAttributes;
 
-    public CloudwatchLogsLogEvent(String level, String logger, String event, String message, long timestamp, String thread, String account, String action, String user, String session, String request) {
+    public CloudwatchLogsLogEvent(String level, String logger, String event, String message, long timestamp,
+                                  String thread, String account, String action, String user, String session,
+                                  String request, Map<String, String> customMdcAttributes) {
         this.level = level;
         this.logger = logger;
         this.event = event;
@@ -25,6 +30,7 @@ public class CloudwatchLogsLogEvent {
         this.user = user;
         this.session = session;
         this.request = request;
+        this.customMdcAttributes = customMdcAttributes;
     }
 
     public String getLevel() {
@@ -69,5 +75,9 @@ public class CloudwatchLogsLogEvent {
 
     public String getRequest() {
         return request;
+    }
+
+    public Map<String, String> getCustomMdcAttributes() {
+        return customMdcAttributes;
     }
 }

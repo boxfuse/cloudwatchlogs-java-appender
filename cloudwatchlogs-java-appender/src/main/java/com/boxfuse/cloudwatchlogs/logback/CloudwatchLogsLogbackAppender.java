@@ -12,6 +12,8 @@ import com.boxfuse.cloudwatchlogs.internal.CloudwatchLogsLogEvent;
 import com.boxfuse.cloudwatchlogs.internal.CloudwatchLogsLogEventPutter;
 import org.slf4j.Marker;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicLong;
@@ -106,7 +108,17 @@ public class CloudwatchLogsLogbackAppender extends AppenderBase<ILoggingEvent> {
         Marker marker = event.getMarker();
         String eventId = marker == null ? null : marker.getName();
 
-        CloudwatchLogsLogEvent logEvent = new CloudwatchLogsLogEvent(event.getLevel().toString(), event.getLoggerName(), eventId, message.toString(), event.getTimeStamp(), event.getThreadName(), account, action, user, session, request);
+        Map<String, String> customMdcAttributes = new HashMap<>();
+        for (String key : config.getCustomMdcKeys()) {
+            String value = event.getMDCPropertyMap().get(key);
+            if (value != null) {
+                customMdcAttributes.put(key, value);
+            }
+        }
+
+        CloudwatchLogsLogEvent logEvent = new CloudwatchLogsLogEvent(event.getLevel().toString(), event.getLoggerName(),
+                eventId, message.toString(), event.getTimeStamp(), event.getThreadName(), account, action, user,
+                session, request, customMdcAttributes);
         while (!eventQueue.offer(logEvent)) {
             // Discard old logging messages while queue is full.
             eventQueue.poll();

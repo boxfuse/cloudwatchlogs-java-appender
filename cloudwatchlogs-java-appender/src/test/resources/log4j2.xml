@@ -4,6 +4,8 @@
         <Boxfuse-CloudwatchLogs>
             <stdoutFallback>true</stdoutFallback>
             <region>eu-central-1</region>
+            <customMdcKey key="my-custom-key"/>
+            <customMdcKey key="my-other-key"/>
         </Boxfuse-CloudwatchLogs>
     </Appenders>
     <Loggers>

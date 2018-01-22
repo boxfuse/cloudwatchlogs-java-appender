@@ -142,6 +142,7 @@ public class CloudwatchLogsLogEventPutter implements Runnable {
                     eventMap.put("user", event.getUser());
                     eventMap.put("session", event.getSession());
                     eventMap.put("request", event.getRequest());
+                    eventMap.putAll(event.getCustomMdcAttributes());
 
                     String eventJson;
                     try {

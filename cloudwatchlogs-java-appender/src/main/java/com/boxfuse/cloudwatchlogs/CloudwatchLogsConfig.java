@@ -5,7 +5,9 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
 
 /**
  * General configuration for the CloudWatch appender.
@@ -32,8 +34,8 @@ public class CloudwatchLogsConfig {
     private String instance = System.getenv("BOXFUSE_INSTANCE_ID");
     private String region = System.getenv("AWS_REGION");
     private String logGroup;
-
     private boolean stdoutFallback;
+    private List<String> customMdcKeys = new ArrayList<>();
 
     public CloudwatchLogsConfig() {
         if (env == null) {
@@ -208,6 +210,20 @@ public class CloudwatchLogsConfig {
      */
     public void setLogGroup(String logGroup) {
         this.logGroup = logGroup;
+    }
+
+    /**
+     * @return Custom MDC keys to include in the log events along with their values.
+     */
+    public List<String> getCustomMdcKeys() {
+        return customMdcKeys;
+    }
+
+    /**
+     * @param customMdcKey Custom MDC key to include in the log events along with its value.
+     */
+    public void addCustomMdcKey(String customMdcKey) {
+        this.customMdcKeys.add(customMdcKey);
     }
 
     private static String getHostName() {
