@@ -92,7 +92,10 @@ Add the appender to your `logback.xml` file at the root of your classpath. In a 
                  Increase to avoid dropping log events at very high throughput.
                  Decrease to reduce maximum memory usage at the risk if the occasional log event drop when it gets full. -->
             <maxEventQueueSize>1000000</maxEventQueueSize>
-            
+                        
+            <!-- The default maximum delay in milliseconds before forcing a flush of the buffered log events to CloudWatch Logs. Default: 500. -->
+            <maxFlushDelay>500</maxFlushDelay>
+
             <!-- The AWS CloudWatch Logs LogGroup to use. This is determined automatically within Boxfuse environments. -->
             <!--
             <logGroup>my-custom-log-group</logGroup>
@@ -124,6 +127,9 @@ Add the appender to your `log4j2.xml` file at the root of your classpath. In a M
                  Increase to avoid dropping log events at very high throughput.
                  Decrease to reduce maximum memory usage at the risk if the occasional log event drop when it gets full. -->
             <maxEventQueueSize>1000000</maxEventQueueSize>
+            
+            <!-- The default maximum delay in milliseconds before forcing a flush of the buffered log events to CloudWatch Logs. Default: 500. -->
+            <maxFlushDelay>500</maxFlushDelay>
             
             <!-- The AWS CloudWatch Logs LogGroup to use. This is determined automatically within Boxfuse environments. -->
             <!--
@@ -254,10 +260,15 @@ The log events are shipped asynchronously on a separate background thread, leavi
 
 ## Version History
 
+### 1.1.8 (Unreleased)
+
+- Improved polling logic under high load
+- Added optional `maxFlushDelay` configuration param
+
 ### 1.1.7.56 (2018-01-08)
 
 - Added thread name
-- Improve polling logic
+- Improved polling logic
 - Added optional `logGroup` configuration param
 
 ### 1.1.6.49 (2017-09-19)

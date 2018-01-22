@@ -53,6 +53,7 @@ public class CloudwatchLogsLog4J2Appender extends AbstractAppender {
             @PluginAttribute("image") String image,
             @PluginAttribute("instance") String instance,
             @PluginAttribute(value = "maxEventQueueSize", defaultInt = CloudwatchLogsConfig.DEFAULT_MAX_EVENT_QUEUE_SIZE) Integer maxEventQueueSize,
+            @PluginAttribute(value = "maxFlushDelay", defaultLong = CloudwatchLogsConfig.DEFAULT_MAX_FLUSH_DELAY) Long maxFlushDelay,
             @PluginAttribute("region") String region,
             @PluginAttribute("logGroup") String logGroup) {
         CloudwatchLogsLog4J2Appender appender = new CloudwatchLogsLog4J2Appender(name, filter, null, true);
@@ -75,6 +76,7 @@ public class CloudwatchLogsLog4J2Appender extends AbstractAppender {
             appender.getConfig().setInstance(instance);
         }
         appender.getConfig().setMaxEventQueueSize(maxEventQueueSize);
+        appender.getConfig().setMaxFlushDelay(maxFlushDelay);
         if (region != null) {
             appender.getConfig().setRegion(region);
         }

@@ -16,7 +16,14 @@ public class CloudwatchLogsConfig {
      */
     public static final int DEFAULT_MAX_EVENT_QUEUE_SIZE = 1000000;
 
+    /**
+     * The default maximum delay in milliseconds before forcing a flush of the buffered log events to CloudWatch Logs.
+     */
+    public static final long DEFAULT_MAX_FLUSH_DELAY = 500;
+
     private int maxEventQueueSize = DEFAULT_MAX_EVENT_QUEUE_SIZE;
+
+    private long maxFlushDelay = DEFAULT_MAX_FLUSH_DELAY;
 
     private boolean debug;
     private String endpoint = System.getenv("BOXFUSE_CLOUDWATCHLOGS_ENDPOINT");
@@ -74,6 +81,23 @@ public class CloudwatchLogsConfig {
             throw new IllegalArgumentException("maxEventQueueSize may not be smaller than 1 but was " + maxEventQueueSize);
         }
         this.maxEventQueueSize = maxEventQueueSize;
+    }
+
+    /**
+     * @return The maximum delay in milliseconds before forcing a flush of the buffered log events to CloudWatch Logs.
+     */
+    public long getMaxFlushDelay() {
+        return maxFlushDelay;
+    }
+
+    /**
+     * @param maxFlushDelay The default maximum delay in milliseconds before forcing a flush of the buffered log events to CloudWatch Logs.
+     */
+    public void setMaxFlushDelay(long maxFlushDelay) {
+        if (maxFlushDelay < 1) {
+            throw new IllegalArgumentException("maxFlushDelay may not be smaller than 1 but was " + maxFlushDelay);
+        }
+        this.maxFlushDelay = maxFlushDelay;
     }
 
     /**
@@ -227,7 +251,7 @@ public class CloudwatchLogsConfig {
                     }
                 }
             }
-        } catch (SocketException var6) {
+        } catch (SocketException e) {
             return "<<unknown>>";
         }
     }
