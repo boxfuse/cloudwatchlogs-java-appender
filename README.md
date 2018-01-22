@@ -41,7 +41,7 @@ Then add the dependency:
 <dependency>
     <groupId>com.boxfuse.cloudwatchlogs</groupId>
     <artifactId>cloudwatchlogs-java-appender</artifactId>
-    <version>1.1.7.56</version>
+    <version>1.1.8.60</version>
 </dependency>
 ```
 
@@ -62,7 +62,7 @@ Then add the dependency:
 
 ```groovy
 dependencies {
-    compile 'com.boxfuse.cloudwatchlogs:cloudwatchlogs-java-appender:1.1.7.56'
+    compile 'com.boxfuse.cloudwatchlogs:cloudwatchlogs-java-appender:1.1.8.60'
 }
 ```
 
@@ -268,7 +268,7 @@ The log events are shipped asynchronously on a separate background thread, leavi
 
 ## Version History
 
-### 1.1.8 (Unreleased)
+### 1.1.8.60 (2018-01-22)
 
 - Improved polling logic under high load
 - Added optional `maxFlushDelay` configuration param
