@@ -204,13 +204,16 @@ public class CloudwatchLogsLogEventPutter implements Runnable {
                 return o1.getTimestamp().compareTo(o2.getTimestamp());
             }
         });
-        if (config.isStdoutFallback()) {
+
+        if (enabled) {
+            processedCount.addAndGet(doFlush());
+        } else if (config.isStdoutFallback()) {
             for (InputLogEvent event : eventBatch) {
                 printWithTimestamp(new Date(event.getTimestamp()), logGroupName + " " + app + " " + event.getMessage());
             }
-        } else {
-            processedCount.addAndGet(doFlush());
+            processedCount.addAndGet(eventBatch.size());
         }
+
         eventBatch = new ArrayList<>();
         batchSize = 0;
         lastFlush = System.nanoTime();
